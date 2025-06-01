@@ -85,9 +85,7 @@ class DeleteKeywordUseCase:
             try:
                 # Verificar si la keyword existe y pertenece al usuario antes de intentar eliminar.
                 # Esto también permite verificar reglas de negocio como la asociación con notas.
-                keyword_to_delete = await uow.keywords.get_by_id(
-                    entity_id=keyword_id, user_id=user_id
-                )
+                keyword_to_delete = await uow.keywords.get_by_id(keyword_id, user_id)
                 if not keyword_to_delete:
                     raise EntityNotFoundError(
                         f"Keyword con ID {keyword_id} no encontrada o no pertenece al usuario.",
@@ -112,7 +110,7 @@ class DeleteKeywordUseCase:
                 # El método delete del repositorio debería lanzar EntityNotFoundError
                 # si la nota no existe o no pertenece al usuario (ya cubierto por get_by_id).
                 # Debería lanzar BusinessRuleViolationError si está asociada a notas.
-                deleted = await uow.keywords.delete(entity_id=keyword_id, user_id=user_id)
+                deleted = await uow.keywords.delete(keyword_id, user_id)
 
                 if (
                     not deleted

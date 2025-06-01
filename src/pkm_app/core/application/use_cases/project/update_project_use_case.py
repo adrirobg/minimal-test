@@ -2,6 +2,7 @@ import logging
 import uuid
 
 from src.pkm_app.core.application.dtos import ProjectSchema, ProjectUpdate
+from src.pkm_app.core.application.interfaces.project_interface import IProjectRepository
 from src.pkm_app.core.application.interfaces.unit_of_work_interface import (
     IUnitOfWork,
 )
@@ -17,8 +18,21 @@ logger = logging.getLogger(__name__)
 
 
 class UpdateProjectUseCase:
-    def __init__(self, unit_of_work: IUnitOfWork):
+    def __init__(self, project_repository: IProjectRepository, unit_of_work: IUnitOfWork):
+        """
+        Inicializa el caso de uso de actualización de proyecto.
+
+        Args:
+            project_repository: Repositorio de proyectos (IProjectRepository).
+            unit_of_work: Unidad de trabajo para transacciones.
+        """
+        self.project_repository = project_repository
         self.unit_of_work = unit_of_work
+        logger.info(
+            "UpdateProjectUseCase inicializado con repositorio: %s y unit_of_work: %s",
+            project_repository.__class__.__name__,
+            unit_of_work.__class__.__name__,
+        )
 
     async def execute(
         self, project_id: uuid.UUID, project_in: ProjectUpdate, user_id: str
@@ -49,6 +63,11 @@ class UpdateProjectUseCase:
             },
         )
 
+        logger.info(
+            "Ejecutando UpdateProjectUseCase para user_id=%s, project_id=%s",
+            user_id,
+            project_id,
+        )
         if not user_id:
             logger.warning(
                 "Intento de actualización de proyecto sin user_id.",
@@ -64,87 +83,40 @@ class UpdateProjectUseCase:
                 extra={"user_id": user_id, "operation": "update_project"},
             )
             raise ProjectNotFoundError(
-                "Se requiere ID de proyecto para actualizarlo.",
+                "Se requiere ID de proyecto para actualizar.",
                 context={"operation": "update_project"},
-            )
-
-        if project_in.name is not None and not project_in.name.strip():
-            logger.warning(
-                "Intento de actualizar proyecto con nombre vacío.",
-                extra={
-                    "user_id": user_id,
-                    "project_id": str(project_id),
-                    "operation": "update_project",
-                },
-            )
-            raise ValidationError(
-                "El nombre del proyecto no puede estar vacío.",
-                context={"field": "name", "operation": "update_project"},
             )
 
         async with self.unit_of_work as uow:
             try:
-                # Asegúrate de que el repositorio de proyectos (`uow.projects`)
-                # tenga un método `update` que acepte `project_id`, `project_in` y `user_id`.
-                updated_project = await uow.projects.update(
-                    project_id=project_id, project_in=project_in, user_id=user_id
-                )
-                if updated_project is None:  # pragma: no cover
-                    # Esta comprobación es una salvaguarda, el repositorio debería lanzar ProjectNotFoundError
+                project = await uow.projects.get_by_id(project_id, user_id)
+                if not project:
+                    logger.warning(
+                        "Proyecto no encontrado para actualización: %s, user_id=%s",
+                        project_id,
+                        user_id,
+                    )
                     raise ProjectNotFoundError(
-                        "No se encontró el proyecto a actualizar.",
-                        project_id=project_id,
+                        f"Proyecto {project_id} no encontrado o no pertenece al usuario.",
+                        context={"operation": "update_project"},
+                    )
+                updated_project = await uow.projects.update(project_id, project_in, user_id)
+                if updated_project is None:
+                    logger.error(
+                        "Error inesperado: el método update devolvió None para project_id=%s",
+                        project_id,
+                    )
+                    raise RepositoryError(
+                        "El método update del repositorio devolvió None",
                         context={"operation": "update_project"},
                     )
                 await uow.commit()
-
-                logger.info(
-                    f"Proyecto {updated_project.id} actualizado exitosamente",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(updated_project.id),
-                        "operation": "update_project",
-                    },
-                )
+                logger.info("Proyecto actualizado exitosamente: %s", project_id)
                 return updated_project
-            except ProjectNotFoundError as e:
-                await uow.rollback()
-                logger.warning(
-                    f"Proyecto no encontrado al intentar actualizar: {str(e)}",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project_id),
-                        "operation": "update_project",
-                    },
-                )
-                raise ProjectNotFoundError(
-                    str(e), project_id=project_id, context={"operation": "update_project"}
-                ) from e
-            except ValueError as e:  # Errores de validación del repositorio
-                await uow.rollback()
-                logger.warning(
-                    f"Error de validación al actualizar proyecto: {str(e)}",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project_id),
-                        "operation": "update_project",
-                        "error_message": str(e),
-                    },
-                )
-                raise ValidationError(str(e), context={"operation": "update_project"}) from e
             except Exception as e:
                 await uow.rollback()
-                logger.exception(
-                    f"Error inesperado al actualizar proyecto {project_id}: {str(e)}",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project_id),
-                        "operation": "update_project",
-                    },
-                )
+                logger.error("Error inesperado al actualizar proyecto: %s", e, exc_info=True)
                 raise RepositoryError(
-                    f"Error inesperado en el repositorio al actualizar proyecto: {str(e)}",
-                    operation="update_project",
-                    repository_type="ProjectRepository",
-                    context={"project_id": str(project_id)},
+                    f"Error al actualizar el proyecto: {e}",
+                    context={"operation": "update_project"},
                 ) from e

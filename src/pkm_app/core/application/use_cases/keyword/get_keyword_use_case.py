@@ -82,9 +82,7 @@ class GetKeywordUseCase:
 
         async with self.unit_of_work as uow:
             try:
-                keyword = await uow.keywords.get_by_id(
-                    entity_id=keyword_id, user_id=user_id
-                )  # Ajustado a entity_id
+                keyword = await uow.keywords.get_by_id(keyword_id=keyword_id, user_id=user_id)
                 if not keyword:
                     logger.warning(
                         f"Keyword {keyword_id} no encontrada por el repositorio para el usuario {user_id}.",

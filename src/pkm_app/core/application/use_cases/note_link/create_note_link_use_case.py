@@ -74,23 +74,21 @@ class CreateNoteLinkUseCase:
         async with self.unit_of_work as uow:
             try:
                 # Validar que las notas origen y destino existen y pertenecen al usuario
-                source_note = await uow.notes.get_by_id(note_link_in.source_note_id)
+                source_note = await uow.notes.get_by_id(note_link_in.source_note_id, user_id)
                 if not source_note or source_note.user_id != user_id:
                     raise ValidationError(
                         f"La nota origen con ID {note_link_in.source_note_id} no existe o no pertenece al usuario.",
                         context={"field": "source_note_id", "operation": "create_note_link"},
                     )
 
-                target_note = await uow.notes.get_by_id(note_link_in.target_note_id)
+                target_note = await uow.notes.get_by_id(note_link_in.target_note_id, user_id)
                 if not target_note or target_note.user_id != user_id:
                     raise ValidationError(
                         f"La nota destino con ID {note_link_in.target_note_id} no existe o no pertenece al usuario.",
                         context={"field": "target_note_id", "operation": "create_note_link"},
                     )
 
-                created_note_link_schema = await uow.note_links.create(
-                    note_link_in=note_link_in, user_id=user_id
-                )
+                created_note_link_schema = await uow.note_links.create(note_link_in, user_id)
                 await uow.commit()
 
                 logger.info(

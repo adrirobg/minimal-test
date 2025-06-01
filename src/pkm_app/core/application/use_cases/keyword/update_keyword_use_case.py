@@ -100,9 +100,7 @@ class UpdateKeywordUseCase:
         async with self.unit_of_work as uow:
             try:
                 # Primero, verificar si la keyword existe y pertenece al usuario
-                existing_keyword = await uow.keywords.get_by_id(
-                    entity_id=keyword_id, user_id=user_id
-                )
+                existing_keyword = await uow.keywords.get_by_id(keyword_id, user_id)
                 if not existing_keyword:
                     raise EntityNotFoundError(
                         f"Keyword con ID {keyword_id} no encontrada o no pertenece al usuario.",
@@ -113,9 +111,7 @@ class UpdateKeywordUseCase:
 
                 # El método update del repositorio se encargará de la lógica de actualización
                 # y de verificar si el usuario tiene permiso (si es necesario, aunque get_by_id ya lo hizo)
-                updated_keyword = await uow.keywords.update(
-                    entity_id=keyword_id, entity_in=keyword_in, user_id=user_id
-                )
+                updated_keyword = await uow.keywords.update(keyword_id, keyword_in, user_id)
                 # El repositorio debería lanzar EntityNotFoundError si no la encuentra durante el update,
                 # o PermissionDeniedError si el user_id no coincide (aunque ya lo validamos antes).
                 # Si devuelve None, también lo manejamos como no encontrado.

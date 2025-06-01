@@ -1,0 +1,58 @@
+services:
+  # Servicio de la base de datos PostgreSQL con pgvector
+  db:
+    image: pgvector/pgvector:pg17 # Imagen con PostgreSQL 17 y pgvector. ¡Buena elección!
+    container_name: kairos-bcp-db # Nombre del contenedor. Claro y específico.
+    restart: unless-stopped # Política de reinicio adecuada para desarrollo.
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432" # Mapeo estándar.
+    volumes:
+      - kairos_db_data:/var/lib/postgresql/data # Persistencia de datos con volumen nombrado. Perfecto.
+      # Si la carpeta 'init-scripts' va a estar en la raíz del proyecto (junto a docker-compose.yml),
+      # entonces la ruta sería '- ./init-scripts:/docker-entrypoint-initdb.d'
+      # o si va a estar dentro de 'src/', sería '- ./src/init-scripts:/docker-entrypoint-initdb.d'.
+      # La imagen pgvector/pgvector ya debería tener la extensión pgvector disponible,
+      # pero esto es útil para crear tablas o roles iniciales.
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=256MB"
+    healthcheck: # Comprobación de salud para asegurar que la DB esté lista.
+      # El usuario 'postgres' suele ser el superusuario por defecto, y pg_isready con él
+      # verifica si el servidor está aceptando conexiones, lo cual es generalmente suficiente.
+      # Si ${DB_USER} es diferente de 'postgres', esta prueba no verifica que ESE usuario pueda conectar,
+      # pero sí que el servicio PostgreSQL está operativo.
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Servicio de pgAdmin para gestionar PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped # Política de reinicio adecuada para desarrollo.
+    container_name: kairos-bcp-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL} # Correcto.
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD} # Correcto.
+    ports:
+      - "8080:80" # Mapeo de puerto estándar para pgAdmin.
+    depends_on:
+      db:
+        condition: service_healthy
+
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+
+
+volumes:
+  kairos_db_data: # Volumen para persistir los datos de PostgreSQL (nombre actualizado). Correcto.
+  qdrant_storage: # Volumen para persistir los datos de Qdrant (nombre actualizado). Correcto.

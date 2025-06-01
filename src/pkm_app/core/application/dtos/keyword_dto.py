@@ -20,7 +20,7 @@ class KeywordBase(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def validate_name_not_empty(cls, data) -> Any:
+    def validate_name_not_empty(cls, data: Any) -> Any:
         if isinstance(data, dict) and "name" in data:
             name = data["name"]
             if isinstance(name, str) and not name.strip():
@@ -56,7 +56,7 @@ class KeywordUpdate(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def validate_name_not_empty(cls, data) -> Any:
+    def validate_name_not_empty(cls, data: Any) -> Any:
         if isinstance(data, dict) and "name" in data:
             name = data["name"]
             if name is not None and isinstance(name, str):

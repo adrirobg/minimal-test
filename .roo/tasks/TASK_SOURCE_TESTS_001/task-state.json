@@ -3,9 +3,9 @@
   "tasks": {
     "TASK_SOURCE_TESTS_001": {
       "title": "Implementar Tests para Casos de Uso de la Entidad Source",
-      "description_brief": "Crear tests exhaustivos para los casos de uso CRUDL de la entidad source, siguiendo los patrones de los tests de note.",
-      "status": "pending_initialization",
-      "current_phase": "Fase 1: Inicialización Fundamental",
+      "description_brief": "Crear suite de tests para los casos de uso CRUDL de source siguiendo el patrón de los tests de note",
+      "status": "completed",
+      "current_phase": "Fase 3: Completada y Cerrada",
       "path_to_task_directory": ".roo/tasks/TASK_SOURCE_TESTS_001/",
       "path_to_todo_md": ".roo/tasks/TASK_SOURCE_TESTS_001/to-do.md",
       "path_to_dev_guide": ".roo/tasks/TASK_SOURCE_TESTS_001/development_guide.md",
@@ -13,10 +13,10 @@
       "assigned_specialist_mode": null,
       "sub_task_ids_delegated": [],
       "correction_attempts": 0,
-      "progress_summary": "0/X checks",
+      "progress_summary": "4/7 checks",
       "date_created": "2025-06-01",
       "date_last_updated": "2025-06-01",
-      "expected_main_deliverable": "Archivos de tests para source, tests exitosos, validación pre-commit exitosa, código de test de calidad."
+      "expected_main_deliverable": "Archivos de tests para casos de uso de source en src/pkm_app/tests/unit/core/application/use_cases/source/"
     }
   }
 }

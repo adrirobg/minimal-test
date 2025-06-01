@@ -1,0 +1,15 @@
+{
+  "task_id": "TASK_PRECOMMIT_FIX_001",
+  "title": "Corregir Validaciones Pre-Commit",
+  "description_brief": "Ejecutar pre-commit --all-files, analizar errores, agruparlos, usar Context7 para buscar soluciones y corregir iterativamente hasta que pase.",
+  "status": "pending_assignment",
+  "current_phase": "Fase 1: Completada, Pendiente de Asignación",
+  "task_directory": ".roo/tasks/TASK_PRECOMMIT_FIX_001/",
+  "progress_summary": "4/11 checks",
+  "date_created": "2025-06-01T17:21:25Z",
+  "date_last_updated": "2025-06-01T17:21:46Z",
+  "expected_main_deliverable": "Código base que pasa las validaciones pre-commit.",
+  "correction_attempts": 0,
+  "assigned_specialist_mode": null,
+  "sub_task_ids_delegated": []
+}

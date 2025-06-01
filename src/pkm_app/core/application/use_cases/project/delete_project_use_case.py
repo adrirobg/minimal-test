@@ -1,6 +1,7 @@
 import logging
 import uuid
 
+from src.pkm_app.core.application.interfaces.project_interface import IProjectRepository
 from src.pkm_app.core.application.interfaces.unit_of_work_interface import (
     IUnitOfWork,
 )
@@ -15,8 +16,21 @@ logger = logging.getLogger(__name__)
 
 
 class DeleteProjectUseCase:
-    def __init__(self, unit_of_work: IUnitOfWork):
+    def __init__(self, project_repository: IProjectRepository, unit_of_work: IUnitOfWork) -> None:
+        """
+        Inicializa el caso de uso de eliminación de proyecto.
+
+        Args:
+            project_repository: Repositorio de proyectos (IProjectRepository).
+            unit_of_work: Unidad de trabajo para transacciones.
+        """
+        self.project_repository = project_repository
         self.unit_of_work = unit_of_work
+        logger.info(
+            "DeleteProjectUseCase inicializado con repositorio: %s y unit_of_work: %s",
+            project_repository.__class__.__name__,
+            unit_of_work.__class__.__name__,
+        )
 
     async def execute(self, project_id: uuid.UUID, user_id: str) -> bool:
         """
@@ -43,6 +57,11 @@ class DeleteProjectUseCase:
             },
         )
 
+        logger.info(
+            "Ejecutando DeleteProjectUseCase para user_id=%s, project_id=%s",
+            user_id,
+            project_id,
+        )
         if not user_id:
             logger.warning(
                 "Intento de eliminación de proyecto sin user_id.",
@@ -58,54 +77,30 @@ class DeleteProjectUseCase:
                 extra={"user_id": user_id, "operation": "delete_project"},
             )
             raise ProjectNotFoundError(
-                "Se requiere ID de proyecto para eliminarlo.",
-                project_id=project_id,  # type: ignore
+                "Se requiere ID de proyecto para eliminar.",
                 context={"operation": "delete_project"},
             )
 
         async with self.unit_of_work as uow:
             try:
-                # Asegúrate de que el repositorio de proyectos (`uow.projects`)
-                # tenga un método `delete` que acepte `project_id` y `user_id`,
-                # y que lance ProjectNotFoundError si el proyecto no existe o no pertenece al usuario.
-                await uow.projects.delete(project_id=project_id, user_id=user_id)
+                deleted = await uow.projects.delete(project_id, user_id)
+                if not deleted:
+                    logger.warning(
+                        "Proyecto no encontrado para eliminación: %s, user_id=%s",
+                        project_id,
+                        user_id,
+                    )
+                    raise ProjectNotFoundError(
+                        f"Proyecto {project_id} no encontrado o no pertenece al usuario.",
+                        context={"operation": "delete_project"},
+                    )
                 await uow.commit()
-
-                logger.info(
-                    f"Proyecto {project_id} eliminado exitosamente",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project_id),
-                        "operation": "delete_project",
-                    },
-                )
+                logger.info("Proyecto eliminado exitosamente: %s", project_id)
                 return True
-            except ProjectNotFoundError as e:
-                await uow.rollback()
-                logger.warning(
-                    f"Proyecto no encontrado al intentar eliminar: {str(e)}",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project_id),
-                        "operation": "delete_project",
-                    },
-                )
-                raise ProjectNotFoundError(
-                    str(e), project_id=project_id, context={"operation": "delete_project"}
-                ) from e
             except Exception as e:
                 await uow.rollback()
-                logger.exception(
-                    f"Error inesperado al eliminar proyecto {project_id}: {str(e)}",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project_id),
-                        "operation": "delete_project",
-                    },
-                )
+                logger.error("Error inesperado al eliminar proyecto: %s", e, exc_info=True)
                 raise RepositoryError(
-                    f"Error inesperado en el repositorio al eliminar proyecto: {str(e)}",
-                    operation="delete_project",
-                    repository_type="ProjectRepository",
-                    context={"project_id": str(project_id)},
+                    f"Error al eliminar el proyecto: {e}",
+                    context={"operation": "delete_project"},
                 ) from e

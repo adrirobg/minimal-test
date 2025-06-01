@@ -1,7 +1,7 @@
 """Update User Profile Use Case."""
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from pkm_app.core.application.dtos.user_profile_dto import UserProfileDTO

@@ -1,21 +1,51 @@
 {
   "mcpServers": {
-    "example-server": {
+    "Context7": {
+      "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
-        "@example/mcp-server@latest",
-        "--access-token",
-        "${env:EXAMPLE_ACCESS_TOKEN}"
+        "@upstash/context7-mcp@latest"
       ],
       "alwaysAllow": [
-        "list_items",
-        "get_item",
-        "create_item"
+        "resolve-library-id"
       ]
     },
-    "example-remote-server": {
-      "url": "https://example-mcp-server.com/api/endpoint?token=${env:EXAMPLE_API_TOKEN}"
+    "@21st-dev/magic": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@21st-dev/magic@latest",
+        "API_KEY=\"7bedb958d672340610af815cb6c706d4a4cafb8f36b0f4daab5dd4fdc59f548f\""
+      ]
+    },
+    "ddg-search": {
+      "command": "uvx",
+      "args": [
+        "duckduckgo-mcp-server"
+      ]
+    },
+    "code-reasoning": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@mettamatt/code-reasoning"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
     }
   }
 }

@@ -2,6 +2,7 @@ import logging
 import uuid
 
 from src.pkm_app.core.application.dtos import ProjectSchema
+from src.pkm_app.core.application.interfaces.project_interface import IProjectRepository
 from src.pkm_app.core.application.interfaces.unit_of_work_interface import (
     IUnitOfWork,
 )
@@ -16,8 +17,26 @@ logger = logging.getLogger(__name__)
 
 
 class GetProjectUseCase:
-    def __init__(self, unit_of_work: IUnitOfWork):
+    """
+    Caso de uso para obtener los detalles de un proyecto.
+    Sigue el patrón de user_profile: inyección explícita de repositorio y unit_of_work, logging robusto y uso de DTOs.
+    """
+
+    def __init__(self, project_repository: IProjectRepository, unit_of_work: IUnitOfWork) -> None:
+        """
+        Inicializa el caso de uso de obtención de proyecto.
+
+        Args:
+            project_repository: Repositorio de proyectos (IProjectRepository).
+            unit_of_work: Unidad de trabajo para transacciones.
+        """
+        self.project_repository = project_repository
         self.unit_of_work = unit_of_work
+        logger.info(
+            "GetProjectUseCase inicializado con repositorio: %s y unit_of_work: %s",
+            project_repository.__class__.__name__,
+            unit_of_work.__class__.__name__,
+        )
 
     async def execute(self, project_id: uuid.UUID, user_id: str) -> ProjectSchema:
         """
@@ -44,6 +63,11 @@ class GetProjectUseCase:
             },
         )
 
+        logger.info(
+            "Ejecutando GetProjectUseCase para user_id=%s, project_id=%s",
+            user_id,
+            project_id,
+        )
         if not user_id:
             logger.warning(
                 "Intento de obtener proyecto sin user_id.",
@@ -59,66 +83,30 @@ class GetProjectUseCase:
                 extra={"user_id": user_id, "operation": "get_project"},
             )
             raise ProjectNotFoundError(
-                "Se requiere ID de proyecto para obtenerlo.",
-                project_id=project_id,  # type: ignore
+                "Se requiere ID de proyecto para obtener un proyecto.",
                 context={"operation": "get_project"},
             )
 
         async with self.unit_of_work as uow:
             try:
-                # Asegúrate de que el repositorio de proyectos (`uow.projects`)
-                # tenga un método `get_by_id` que acepte `project_id` y `user_id`.
-                project = await uow.projects.get_by_id(project_id=project_id, user_id=user_id)
+                project = await uow.projects.get_by_id(project_id, user_id)
                 if not project:
                     logger.warning(
-                        f"Proyecto {project_id} no encontrado por el repositorio para el usuario {user_id}.",
-                        extra={
-                            "user_id": user_id,
-                            "project_id": str(project_id),
-                            "operation": "get_project",
-                        },
+                        "Proyecto no encontrado: %s para user_id=%s",
+                        project_id,
+                        user_id,
                     )
                     raise ProjectNotFoundError(
-                        f"Proyecto con ID {project_id} no encontrado o no pertenece al usuario.",
-                        project_id=project_id,
-                        context={"operation": "get_project", "user_id": user_id},
+                        f"Proyecto {project_id} no encontrado o no pertenece al usuario.",
+                        context={"operation": "get_project"},
                     )
-
-                logger.info(
-                    f"Proyecto {project.id} obtenido exitosamente",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project.id),
-                        "operation": "get_project",
-                    },
-                )
+                logger.info("Proyecto obtenido exitosamente: %s", project_id)
+                await uow.commit()
                 return project
-            except ProjectNotFoundError as e:
-                await uow.rollback()
-                logger.warning(
-                    f"Proyecto no encontrado al intentar obtener (relanzando): {str(e)}",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project_id),
-                        "operation": "get_project",
-                    },
-                )
-                e.context = e.context or {}
-                e.context.update({"operation": "get_project"})
-                raise
             except Exception as e:
                 await uow.rollback()
-                logger.exception(
-                    f"Error inesperado al obtener proyecto {project_id}: {str(e)}",
-                    extra={
-                        "user_id": user_id,
-                        "project_id": str(project_id),
-                        "operation": "get_project",
-                    },
-                )
+                logger.error("Error inesperado al obtener proyecto: %s", e, exc_info=True)
                 raise RepositoryError(
-                    f"Error inesperado en el repositorio al obtener proyecto: {str(e)}",
-                    operation="get_project",
-                    repository_type="ProjectRepository",
-                    context={"project_id": str(project_id)},
+                    f"Error al obtener el proyecto: {e}",
+                    context={"operation": "get_project"},
                 ) from e

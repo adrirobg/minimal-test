@@ -1,7 +1,7 @@
 """List User Profiles Use Case."""
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pkm_app.core.application.dtos.user_profile_dto import UserProfileDTO
 from pkm_app.core.application.interfaces.user_profile_interface import IUserProfileRepository

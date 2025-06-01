@@ -103,31 +103,25 @@ class ListNoteLinksUseCase:
             try:
                 if source_note_id:
                     # Validar que la nota origen existe y pertenece al usuario
-                    source_note = await uow.notes.get_by_id(source_note_id)
-                    if not source_note or source_note.user_id != user_id:
+                    source_note = await uow.notes.get_by_id(source_note_id, user_id)
+                    if not source_note:
                         raise ValidationError(
                             f"La nota origen con ID {source_note_id} no existe o no pertenece al usuario.",
                             context={"field": "source_note_id", "operation": "list_note_links"},
                         )
-                    note_links = await uow.note_links.list_by_source_note(
-                        user_id=user_id,
-                        source_note_id=source_note_id,
-                        skip=final_skip,
-                        limit=final_limit,
+                    note_links = await uow.note_links.get_links_by_source_note(
+                        source_note_id, user_id, final_skip, final_limit
                     )
                 elif target_note_id:
                     # Validar que la nota destino existe y pertenece al usuario
-                    target_note = await uow.notes.get_by_id(target_note_id)
-                    if not target_note or target_note.user_id != user_id:
+                    target_note = await uow.notes.get_by_id(target_note_id, user_id)
+                    if not target_note:
                         raise ValidationError(
                             f"La nota destino con ID {target_note_id} no existe o no pertenece al usuario.",
                             context={"field": "target_note_id", "operation": "list_note_links"},
                         )
-                    note_links = await uow.note_links.list_by_target_note(
-                        user_id=user_id,
-                        target_note_id=target_note_id,
-                        skip=final_skip,
-                        limit=final_limit,
+                    note_links = await uow.note_links.get_links_by_target_note(
+                        target_note_id, user_id, final_skip, final_limit
                     )
                 else:
                     note_links = await uow.note_links.list_by_user(
@@ -141,6 +135,13 @@ class ListNoteLinksUseCase:
                 return note_links
             except ValidationError:  # Para relanzar las de validación de nota
                 await uow.rollback()
+                raise
+            except RepositoryError as e:
+                await uow.rollback()
+                logger.exception(
+                    f"Error de repositorio al listar enlaces para usuario {user_id}: {str(e)}",
+                    extra=log_extra,
+                )
                 raise
             except Exception as e:
                 await uow.rollback()
