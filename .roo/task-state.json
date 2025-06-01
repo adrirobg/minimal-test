@@ -1,0 +1,21 @@
+{
+  "active_task_id": "TASK_KEYWORD_CRUDL_001",
+  "tasks": {
+    "TASK_KEYWORD_CRUDL_001": {
+      "title": "Implementar Casos de Uso Principales para la Entidad keyword",
+      "description_brief": "Implementación completa de los casos de uso CRUDL para la entidad keyword siguiendo los patrones de user_profile y note, con tests, logging y validaciones de calidad.",
+      "status": "completed",
+      "current_phase": "Fase 5: Completada y Cerrada",
+      "path_to_task_directory": ".roo/tasks/TASK_KEYWORD_CRUDL_001/",
+      "path_to_todo_md": ".roo/tasks/TASK_KEYWORD_CRUDL_001/to-do.md",
+      "path_to_dev_guide": ".roo/tasks/TASK_KEYWORD_CRUDL_001/development_guide.md",
+      "assigned_specialist_mode": "code",
+      "sub_task_ids_delegated": [],
+      "correction_attempts": 0,
+      "progress_summary": "9/17 checks",
+      "date_created": "2025-06-01",
+      "date_last_updated": "2025-06-01",
+      "expected_main_deliverable": "Casos de uso CRUDL de keyword implementados y testeados, con validaciones de calidad y documentación mínima."
+    }
+  }
+}

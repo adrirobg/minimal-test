@@ -1,0 +1,50 @@
+# kairos_bcp/.pre-commit-config.yaml
+
+# Repositorios de hooks y sus configuraciones
+repos:
+  # Hooks estándar de pre-commit para mantenimiento básico de archivos
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0  # Usa una versión reciente y estable
+    hooks:
+      - id: check-yaml # Comprueba la sintaxis de los archivos YAML
+      - id: check-toml # Comprueba la sintaxis de los archivos TOML (como pyproject.toml)
+      - id: end-of-file-fixer # Asegura que los archivos terminen con una nueva línea
+      - id: trailing-whitespace # Elimina los espacios en blanco al final de las líneas
+      - id: check-merge-conflict # Evita commits con marcadores de conflicto de merge
+      - id: check-added-large-files # Evita añadir archivos muy grandes accidentalmente
+
+  # Hook para el formateador de código Black
+  - repo: https://github.com/psf/black
+    rev: 25.1.0  # Actualizado para coincidir con tu pyproject.toml (^25.1.0)
+    hooks:
+      - id: black
+        language_version: python3.13 # Especifica la versión de Python para Black
+
+  # Hooks para el linter y formateador Ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.11  # Actualizado para coincidir con tu pyproject.toml (^0.11.11)
+    hooks:
+      - id: ruff # Ejecuta el linter Ruff
+        args: [--fix, --exit-non-zero-on-fix] # Intenta arreglar automáticamente y reporta si hubo cambios
+
+  # Hook para el type checker Mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.15.0  # Actualizado para coincidir con tu pyproject.toml (^1.15.0)
+    hooks:
+      - id: mypy
+        # Mypy necesita acceso a las dependencias de tu proyecto para el chequeo de tipos.
+        # Lista aquí las dependencias principales que Mypy necesita para entender tu código.
+        # Las versiones deben ser compatibles con las de tu pyproject.toml.
+        additional_dependencies:
+          - "pydantic>=2.11.5"
+          - "pydantic-settings>=2.9.1"
+          - "sqlalchemy>=2.0.41" # SQLAlchemy 2.0+ tiene buen soporte de tipos.
+          # - "sqlalchemy-stubs" # Considera si usas versiones antiguas de SQLAlchemy o para una cobertura de tipos más completa con el ORM.
+          # - "mypy-extensions" # Puede ser necesaria para algunos casos de tipado avanzado.
+          - "asyncpg>=0.30.0" # asyncpg incluye sus propios stubs.
+          - "pgvector>=0.4.1"
+          - "agno==1.5.1" # Añadida para coincidir con pyproject.toml
+          - "google-generativeai>=0.8.5"
+          - "fastapi>=0.115.12" # FastAPI usa Pydantic extensivamente.
+        args: [--config-file=pyproject.toml] # Asegura que Mypy use la configuración de pyproject.toml
+        pass_filenames: false # Mypy escaneará según su config, no solo archivos cambiados.

@@ -1,0 +1,120 @@
+[project]
+name = "kairos-bcp"
+version = "0.1"
+description = "" # SUGERENCIA: Añade una breve descripción aquí, ej: "Backend para el Sistema de Gestión de Conocimiento Personal Kairos."
+authors = [
+    {name = "adrirobg",email = "adrirobles1991@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<4.0" # Asegúrate de que tu código es compatible con Python 3.13
+dependencies = [
+    "pydantic[email] (>=2.11.5,<3.0.0)",
+    "pydantic-settings (>=2.9.1,<3.0.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "sqlalchemy (>=2.0.41,<3.0.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "asyncpg (>=0.30.0,<0.31.0)",
+    "alembic (>=1.16.1,<2.0.0)",
+    "pgvector (>=0.4.1,<0.5.0)",
+    "google-genai (>=1.16.1,<2.0.0)",
+    "google-generativeai (>=0.8.5,<0.9.0)",
+    "fastapi (>=0.115.12,<0.116.0)",
+    "uvicorn (>=0.34.2,<0.35.0)",
+    "agno==1.5.1",
+    "aiocache (>=0.12.3,<0.13.0)"
+] # Aquí irán las dependencias de tu aplicación, ej: fastapi, sqlalchemy, pydantic, etc.
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"] # Esto está bien, aunque las versiones más recientes de Poetry suelen poner solo "poetry-core" o "poetry-core>=1.0.0". Lo que tienes es funcional.
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{include = "pkm_app", from = "src"}]
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+ruff = "^0.11.11"
+mypy = "^1.15.0"
+pre-commit = "^4.2.0"
+pytest = "^8.0.0"  # O la versión más reciente compatible
+pytest-asyncio = "^1.0.0" # O la versión más reciente compatible
+
+[tool.black]
+line-length = 100
+target-version = ['py313'] # Asegura compatibilidad con tu versión de Python
+
+[tool.ruff]
+# Establece la longitud de línea para que coincida con Black
+line-length = 100
+# Configura Ruff para que ignore errores de estilo que Black podría cambiar
+# Habilita el fix automático para reglas que lo soporten
+fix = true
+# Excluye directorios comunes (como entornos virtuales)
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "migrations/versions", # A menudo los archivos autogenerados de Alembic no necesitan tanto linting
+    "src/pkm_app/tests", # Excluir directorio de tests
+]
+
+[tool.ruff.lint]
+# Selecciona un conjunto de reglas. Ejemplos:
+# E, F: Errores de pycodestyle y Pyflakes
+# W: Advertencias de pycodestyle
+# I: isort (ordenamiento de imports)
+# UP: pyupgrade
+# B: flake8-bugbear (posibles bugs)
+# C4: flake8-comprehensions (comprensiones más idiomáticas)
+# SIM: flake8-simplify (simplificaciones de código)
+# ARG: flake8-unused-arguments (argumentos no usados)
+# T20: flake8-print (evitar prints en producción)
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "ARG", "T20"]
+ignore = [ # Puedes añadir códigos de error específicos para ignorar aquí
+    "E501", # Longitud de línea, Black lo maneja
+    "E203", # Espacios en slices, Black lo maneja
+    "F401", # Importaciones no usadas, Black no las maneja
+    "F403", # Importaciones con * (Black no las maneja)
+    "F405", # Importaciones de submódulos (Black no las maneja)
+    "E402", # Module level import not at top of file
+]
+
+[tool.ruff.format]
+# Opcional: Ruff también puede formatear, pero si usas Black, puedes deshabilitarlo
+# o asegurarte de que su configuración sea compatible.
+# Si usas Black como formateador principal, no necesitas esta sección
+# o puedes configurarla para que no entre en conflicto.
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true # Inicialmente útil, puedes hacerlo más estricto después
+disallow_untyped_defs = true  # Fomenta la anotación de tipos en todas las funciones/métodos
+exclude = ["migrations/versions/","tests/*"] # Excluye los archivos de versiones de Alembic
+files = ["src/pkm_app"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+# --- Fin Configuración de Herramientas ---
