@@ -32,8 +32,12 @@ async def test_list_keywords_success_default_pagination(
     # Arrange
     user_id = "test_user_id"
     expected_keywords = [
-        KeywordSchema(id=uuid.uuid4(), name="Keyword 1", user_id=user_id, created_at=datetime.now()),
-        KeywordSchema(id=uuid.uuid4(), name="Keyword 2", user_id=user_id, created_at=datetime.now()),
+        KeywordSchema(
+            id=uuid.uuid4(), name="Keyword 1", user_id=user_id, created_at=datetime.now()
+        ),
+        KeywordSchema(
+            id=uuid.uuid4(), name="Keyword 2", user_id=user_id, created_at=datetime.now()
+        ),
     ]
     mock_uow_instance.keywords.list_by_user.return_value = expected_keywords
 
@@ -58,7 +62,9 @@ async def test_list_keywords_success_custom_pagination(
     custom_skip = 5
     custom_limit = 10
     expected_keywords = [
-        KeywordSchema(id=uuid.uuid4(), name="Keyword 1", user_id=user_id, created_at=datetime.now()),
+        KeywordSchema(
+            id=uuid.uuid4(), name="Keyword 1", user_id=user_id, created_at=datetime.now()
+        ),
     ]
     mock_uow_instance.keywords.list_by_user.return_value = expected_keywords
 

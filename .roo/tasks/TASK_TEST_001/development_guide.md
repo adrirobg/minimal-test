@@ -4,8 +4,8 @@
 Implementar los casos de uso CRUDL para la entidad `keyword` siguiendo los patrones y estándares de los casos de uso de `user_profile` y `note`.
 
 ## Referencias Clave
-- Casos de uso de referencia:  
-  - [`user_profile`](src/pkm_app/core/application/use_cases/user_profile/)  
+- Casos de uso de referencia:
+  - [`user_profile`](src/pkm_app/core/application/use_cases/user_profile/)
   - [`note`](src/pkm_app/core/application/use_cases/note/)
 - DTO relevante: [`keyword_dto.py`](src/pkm_app/core/application/dtos/keyword_dto.py)
 - Interfaz de repositorio: [`keyword_interface.py`](src/pkm_app/core/application/interfaces/keyword_interface.py)

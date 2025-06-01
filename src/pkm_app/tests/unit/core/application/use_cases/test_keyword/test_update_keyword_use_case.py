@@ -39,20 +39,15 @@ async def test_update_keyword_success(
 
     # Mockear la keyword existente que se recupera primero
     from datetime import datetime
+
     existing_keyword_mock = KeywordSchema(
-        id=keyword_id,
-        name="Old Keyword Name",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Old Keyword Name", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.get_by_id.return_value = existing_keyword_mock
 
     # Mockear la keyword actualizada que devuelve el método update del repo
     updated_keyword_schema = KeywordSchema(
-        id=keyword_id,
-        name="Updated Keyword Name",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Updated Keyword Name", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.update.return_value = updated_keyword_schema
 
@@ -110,11 +105,9 @@ async def test_update_keyword_not_found_at_update(
     keyword_update_data = KeywordUpdate(name="Updated Name")
 
     from datetime import datetime
+
     existing_keyword_mock = KeywordSchema(
-        id=keyword_id,
-        name="Old Name",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Old Name", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.get_by_id.return_value = existing_keyword_mock
     mock_uow_instance.keywords.update.return_value = None  # El repo.update devuelve None
@@ -238,11 +231,9 @@ async def test_update_keyword_repository_value_error_on_update(
     keyword_update_data = KeywordUpdate(name="Duplicate Name")
 
     from datetime import datetime
+
     existing_keyword_mock = KeywordSchema(
-        id=keyword_id,
-        name="Old Name",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Old Name", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.get_by_id.return_value = existing_keyword_mock
     mock_uow_instance.keywords.update.side_effect = ValueError(
@@ -272,11 +263,9 @@ async def test_update_keyword_generic_exception_on_update(
     keyword_update_data = KeywordUpdate(name="Some Name")
 
     from datetime import datetime
+
     existing_keyword_mock = KeywordSchema(
-        id=keyword_id,
-        name="Old Name",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Old Name", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.get_by_id.return_value = existing_keyword_mock
     mock_uow_instance.keywords.update.side_effect = Exception("Simulated generic database error")

@@ -30,12 +30,10 @@ async def test_create_keyword_success(
     keyword_data = KeywordCreate(name="Test Keyword")
     user_id = "test_user_id"
     from datetime import datetime
+
     expected_keyword_id = uuid.uuid4()
     expected_keyword = KeywordSchema(
-        id=expected_keyword_id,
-        name="Test Keyword",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=expected_keyword_id, name="Test Keyword", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.create.return_value = expected_keyword
 

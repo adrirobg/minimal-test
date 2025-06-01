@@ -39,11 +39,9 @@ async def test_delete_keyword_success(
 
     # Mockear la keyword existente que se recupera primero
     from datetime import datetime
+
     existing_keyword_mock = KeywordSchema(
-        id=keyword_id,
-        name="Test Keyword",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Test Keyword", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.get_by_id.return_value = existing_keyword_mock
     mock_uow_instance.keywords.delete.return_value = (
@@ -94,11 +92,9 @@ async def test_delete_keyword_not_found_at_delete_method(
     keyword_id = uuid.uuid4()
     user_id = "test_user_id"
     from datetime import datetime
+
     existing_keyword_mock = KeywordSchema(
-        id=keyword_id,
-        name="Test Keyword",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Test Keyword", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.get_by_id.return_value = existing_keyword_mock
     # El método delete del repo devuelve False en lugar de lanzar EntityNotFoundError
@@ -188,11 +184,9 @@ async def test_delete_keyword_with_notes_raises_business_rule_violation(
     user_id = "test_user_id"
 
     from datetime import datetime
+
     existing_keyword_mock = KeywordSchema(
-        id=keyword_id,
-        name="Test Keyword",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Test Keyword", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.get_by_id.return_value = existing_keyword_mock
 
@@ -221,11 +215,9 @@ async def test_delete_keyword_repository_generic_exception(
     user_id = "test_user_id"
 
     from datetime import datetime
+
     existing_keyword_mock = KeywordSchema(
-        id=keyword_id,
-        name="Test Keyword",
-        user_id=user_id,
-        created_at=datetime.now()
+        id=keyword_id, name="Test Keyword", user_id=user_id, created_at=datetime.now()
     )
     mock_uow_instance.keywords.get_by_id.return_value = existing_keyword_mock
     mock_uow_instance.keywords.delete.side_effect = Exception("Simulated generic database error")

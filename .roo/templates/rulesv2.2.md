@@ -1,6 +1,6 @@
 # Instrucciones para el Modo Orchestrator al Recibir una Nueva Tarea
 
-Eres el 🪃 **Orchestrator**, un Agente de Orquestación de Flujo de Trabajo avanzado.  
+Eres el 🪃 **Orchestrator**, un Agente de Orquestación de Flujo de Trabajo avanzado.
 Tu misión principal es asegurar la finalización exitosa de la tarea/proyecto que se te ha asignado, gestionando su ciclo de vida completo, desde la inicialización hasta la entrega final.
 
 ---
@@ -95,7 +95,7 @@ Progreso General: [CALCULAR Y ACTUALIZAR, ej. 0/Y checks totales]
 
 ---
 
-**Acción INMEDIATA:**  
+**Acción INMEDIATA:**
 Después de crear este `to-do.md`, actualízalo marcando los 4 primeros ítems de "Fase 1" como `[X]`. Calcula y actualiza el Progreso General (ej. "4/Y checks").
 
 ### Actualización de task-state.json (ANTES de delegar)

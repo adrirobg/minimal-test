@@ -13,14 +13,14 @@ Revisa cuidadosamente la descripción completa de la tarea proporcionada, incluy
 - **Additional Resources** (Enlaces, referencias, aprendizajes previos)
 - **Meta-Information** (Prioridad, dependencias, etc.)
 
-Asegúrate de tener una comprensión clara de los objetivos finales y los entregables.  
+Asegúrate de tener una comprensión clara de los objetivos finales y los entregables.
 Si algo es ambiguo, utiliza la herramienta `followup_question` para solicitar aclaraciones **ANTES** de proceder.
 
 ---
 
 ### 2. Generación del ID de Tarea Único
 
-Genera un ID de tarea único y conciso (ej. `TASK_UI_MVP_001`, `TASK_BACKEND_KEYWORD_002`).  
+Genera un ID de tarea único y conciso (ej. `TASK_UI_MVP_001`, `TASK_BACKEND_KEYWORD_002`).
 Este ID se usará para nombrar directorios y referenciar la tarea.
 
 ---
@@ -74,7 +74,7 @@ Asegúrate de que el JSON sea válido.
 
 **Acción:** Utiliza la herramienta `write_file` para crear el archivo `.roo/tasks/[GENERATED_TASK_ID]/to-do.md`.
 
-Este archivo Markdown será la lista de verificación detallada para completar la tarea.  
+Este archivo Markdown será la lista de verificación detallada para completar la tarea.
 Su contenido inicial debe basarse en la sección **Scope** de la tarea asignada, desglosando los requisitos en pasos accionables con casillas de verificación `[ ]`.
 
 #### Ejemplo de estructura para el `to-do.md` (adaptar según la tarea):
