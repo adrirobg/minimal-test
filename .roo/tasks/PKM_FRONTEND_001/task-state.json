@@ -1,0 +1,20 @@
+{
+  "task_id": "PKM_FRONTEND_001",
+  "title": "Desarrollo del frontend PKM con React+NextJS, Tailwind y ShadCN para operaciones CRUD",
+  "description_brief": "Implementar frontend para gestión jerárquica de proyectos y notas, consumiendo API REST con Next.js, Tailwind y ShadCN",
+  "status": "pending_review_coder",
+  "current_phase_task": "Fase 3.1: Revisión de Trabajo del Coder",
+  "path_to_task_todo_md": "to-do.md",
+  "path极狐_to_coder_todo_md": "to-do_coder.md",
+  "path_to_dev_guide": "development_guide.md",
+  "path_to_context7_checklist": "context7_checklist.md",
+  "path_to_task_specific_coder_directives_temp": ".roo/rules-code/00_task_specific_directives_PKM_FRONTEND_001.md",
+  "path_to_task_specific_coder_directives_archived": "archived_task_specific_directives.md",
+  "current_delegated_mode": null,
+  "delegated_task_ids": ["PKM_FRONTEND_001_PSEUDO", "PKM_FRONTEND_001_CODER"],
+  "correction_attempts_coder": 0,
+  "progress_summary_task": "11/16",
+  "date_created": "2025-06-02",
+  "date_last_updated": "2025-06-02",
+  "expected_main_deliverable": "Frontend Next.js con vistas CRUD, enrutamiento y gestión de estado"
+}

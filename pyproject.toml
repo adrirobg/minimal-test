@@ -38,6 +38,7 @@ mypy = "^1.15.0"
 pre-commit = "^4.2.0"
 pytest = "^8.0.0"  # O la versión más reciente compatible
 pytest-asyncio = "^1.0.0" # O la versión más reciente compatible
+faker = "^37.3.0"
 
 [tool.black]
 line-length = 100

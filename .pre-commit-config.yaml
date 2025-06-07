@@ -1,5 +1,8 @@
 # kairos_bcp/.pre-commit-config.yaml
 
+# Excluir la carpeta .roo y el archivo .roomodes de todas las validaciones pre-commit
+exclude: '^(\.roo/|\.roomodes$)'
+
 # Repositorios de hooks y sus configuraciones
 repos:
   # Hooks estándar de pre-commit para mantenimiento básico de archivos

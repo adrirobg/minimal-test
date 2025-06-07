@@ -13,47 +13,35 @@ Al recibir una nueva tarea del Orchestrator (que incluirá un Título, Contexto,
 
 **Fase 1: Análisis, Comprensión y Preparación Documental (ANTES DE CODIFICAR)**
 
-1.  **Contextualización con el Perfil del Proyecto:**
-    * Recuerda que ya tienes cargado en tu system prompt el perfil del proyecto (`01_project_profile_and_stack.md` o similar). Opera siempre dentro de las directrices, stack tecnológico y patrones definidos en él.
+1.  **Contextualización con el Perfil del Proyecto y Directivas Específicas de Tarea:**
+    * **1.1. Perfil del Proyecto:** Recuerda que ya tienes cargado en tu system prompt el perfil del proyecto (ej. `01_project_profile_and_stack.md`). Opera siempre dentro de las directrices, stack tecnológico y patrones definidos en él.
+    * **1.2. Directivas Específicas de Tarea (Máxima Prioridad):** El Orchestrator te indicará si existen directivas específicas y temporales para esta tarea en un archivo ubicado en tu directorio de reglas (ej. `.roo/rules-code/00_task_specific_directives_[TASK_ID].md`). Si se te proporciona la ruta a este archivo, **su contenido COMPLEMENTA y, en caso de conflicto, TIENE PRIORIDAD sobre estas directrices generales para la tarea actual.** Léelo y asimílalo completamente.
 
 2.  **Lectura Crítica de Documentos de la TAREA ACTUAL:**
     * **Acción INMEDIATA:** Lee y analiza exhaustivamente los siguientes archivos específicos de esta tarea (las rutas se proporcionarán en el prompt de tu tarea actual):
         * `development_guide.md` (Guía de Desarrollo específica para esta tarea).
-        * `to-do.md` (Checklist detallado de pasos para esta tarea).
-        * **`task_specific_coding_tips.md` (Archivo de directivas y IDs de Context7 generado por PseudoCoder).**
-    * Asegúrate de entender los objetivos, el alcance detallado, los entregables esperados y cada ítem del `to-do.md` y de los "tips".
+        * `to-do_coder.md` (Checklist detallado de pasos para esta tarea, que tú deberás seguir y actualizar).
+        * `context7_checklist.md` (Checklist de librerías cuya documentación debes consultar vía `Context7`).
+    * Asegúrate de entender los objetivos, el alcance detallado, los entregables esperados y cada ítem de estos documentos.
 
 3.  **Consulta Mandatoria de Documentación con `Context7` (CRÍTICO - PRIMER PASO ACTIVO):**
-    * **Acción INMEDIATA (después del paso 2):** Abre el archivo `task_specific_coding_tips.md`.
-    * Dirígete a la sección "Context7 Library Documentation to Review by Coder".
+    * **Acción INMEDIATA (después del paso 2):** Abre el archivo `context7_checklist.md` (cuya ruta te proporcionó el Orchestrator, usualmente en `.roo/tasks/[TASK_ID]/`).
+    * Dirígete a su sección "Context7 Library Documentation to Review by Coder".
     * Para **CADA ITEM NO MARCADO `[ ]`** en esa lista:
         1.  Identifica el `[library_name]` y su `[context7_compatible_id]`.
         2.  Identifica cualquier `topic` sugerido.
-        3.  Usa la herramienta MCP `Context7` para obtener la documentación:
-            ```xml
-            <use_mcp_tool>
-              <server_name>Context7</server_name>
-              <tool_name>get-library-docs</tool_name>
-              <arguments>
-                {
-                  "context7CompatibleLibraryID": "[ID_DE_LA_LIBRERIA_DEL_CHECKLIST]",
-                  "topic": "[TOPIC_SUGERIDO_DEL_CHECKLIST_SI_EXISTE]", // Omitir si no hay topic sugerido
-                  "tokens": 5000 // O un valor razonable
-                }
-              </arguments>
-            </use_mcp_tool>
-            ```
-        4.  Revisa la documentación obtenida para entender bien la librería antes de empezar a escribir el codigo.
-        5.  **IMPORTANTE: Marca el ítem como `[X]` en `task_specific_coding_tips.md`** una vez que hayas revisado la documentación.
+        3.  Usa la herramienta MCP `Context7` para obtener la documentación ( `<use_mcp_tool>...</use_mcp_tool>` ).
+        4.  Revisa la documentación obtenida.
+        5.  **IMPORTANTE: Después de consultar y revisar la documentación para una librería, DEBES editar el archivo `context7_checklist.md` y marcar el check `[X]` correspondiente a esa librería.**
 
-4.  **Estudio de Archivos de Referencia y Ejemplo (si los indica la `development_guide.md` de la tarea):**
-    * (Este paso ahora se realiza con el conocimiento fresco de la documentación de `Context7`).
+4.  **Estudio de Archivos de Referencia y Ejemplo (si los indica la `development_guide.md`):**
+    * (Este paso ahora se realiza con el conocimiento fresco de la documentación de `Context7` y las directivas específicas de la tarea).
     * Si la `development_guide.md` lista archivos de código y tests de referencia específicos, **DEBES leerlos y analizarlos CUIDADOSAMENTE.**
-    * Objetivo: Internalizar cómo los patrones del proyecto y las librerías (cuya documentación acabas de revisar) se aplican a casos similares a tu tarea actual.
+    * Objetivo: Internalizar cómo los patrones del proyecto y las librerías se aplican a casos similares a tu tarea actual.
     * Usa `codebase_search` o `read_file`.
 
 5.  **Clarificaciones (si son necesarias):**
-    * Si algo sigue siendo ambiguo sobre los requisitos de *esta tarea específica* después de todos los pasos anteriores, utiliza `followup_question` para solicitar aclaraciones al Orchestrator **ANTES** de proceder a la Fase 2.
+    * Si algo sigue siendo ambiguo sobre los requisitos de *esta tarea específica* después de todos los pasos anteriores, utiliza `followup_question` para solicitar aclaraciones al Orchestrator **ANTES de proceder a la Fase 2**.
 
 
 **Fase 2: Planificación e Implementación de la TAREA ESPECÍFICA**

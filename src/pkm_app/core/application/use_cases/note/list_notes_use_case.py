@@ -1,10 +1,10 @@
 import logging
 
-from src.pkm_app.core.application.dtos import NoteSchema
-from src.pkm_app.core.application.interfaces.unit_of_work_interface import (
+from pkm_app.core.application.dtos import NoteSchema
+from pkm_app.core.application.interfaces.unit_of_work_interface import (
     IUnitOfWork,
 )
-from src.pkm_app.core.domain.errors import PermissionDeniedError, RepositoryError, ValidationError
+from pkm_app.core.domain.errors import PermissionDeniedError, RepositoryError, ValidationError
 
 # Configurar logger para este caso de uso
 logger = logging.getLogger(__name__)
@@ -80,9 +80,11 @@ class ListNotesUseCase:
 
         async with self.unit_of_work as uow:
             try:
-                notes = await uow.notes.list_by_user(
+                notes_result = await uow.notes.list_by_user(
                     user_id=user_id, skip=final_skip, limit=final_limit
                 )
+                # Asegurar que el tipo sea correcto para MyPy
+                notes: list[NoteSchema] = notes_result
 
                 logger.info(
                     f"Listadas {len(notes)} notas para usuario {user_id}",

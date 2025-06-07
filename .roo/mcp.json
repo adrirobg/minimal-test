@@ -8,7 +8,8 @@
         "@upstash/context7-mcp@latest"
       ],
       "alwaysAllow": [
-        "resolve-library-id"
+        "resolve-library-id",
+        "get-library-docs"
       ]
     },
     "@21st-dev/magic": {

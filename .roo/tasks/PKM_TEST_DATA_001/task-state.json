@@ -1,0 +1,20 @@
+{
+  "task_id": "PKM_TEST_DATA_001",
+  "title": "Creación de dataset de prueba para todas las entidades PKM + migración DB para facilitar debugging visual",
+  "description_brief": "Generar un dataset de prueba reducido para validar las relaciones básicas entre entidades PKM, con volúmenes ajustados para uso en desarrollo local, y cargarlo mediante migraciones de Alembic.",
+  "status": "pending_review_coder",
+  "current_phase_task": "Fase 3.1: Revisión de Trabajo del Coder",
+  "path_to_task_todo_md": "to-do.md",
+  "path_to_coder_todo_md": "to-do_coder.md",
+  "path_to_dev_guide": "development_guide.md",
+  "path_to_context7_checklist": "context7_checklist.md",
+  "path_to_task_specific_coder_directives_temp": ".roo/rules-code/00_task_specific_directives_PKM_TEST_DATA_001.md",
+  "path_to_task_specific_coder_directives_archived": "archived_task_specific_directives.md",
+  "current_delegated_mode": null,
+  "delegated_task_ids": ["PKM_TEST_DATA_001_PSEUDO_TASK", "PKM_TEST_DATA_001_CODER_TASK"],
+  "correction_attempts_coder": 0,
+  "progress_summary_task": "9/15 checks",
+  "date_created": "2025-06-02",
+  "date_last_updated": "2025-06-02",
+  "expected_main_deliverable": "Scripts Python para generación de datos, archivo de migración SQL, archivo de semilla SQL, y documentación TEST_DATA_README.md"
+}
