@@ -104,8 +104,21 @@ class SQLAlchemyNoteRepository(INoteRepository):
 - Pre-commit hooks for code quality (Black, Ruff, MyPy)
 - Frontend uses Next.js 15 with App Router, TypeScript, Tailwind CSS, Shadcn/ui
 
+## Development Workflow
+
+**IMPORTANT**: This project uses a systematic **Issues-Based Development** workflow. Before making any changes:
+
+1. **Check existing issues**: `gh issue list`
+2. **Create specific issue**: `gh issue create --title "Problem" --label "priority,type"`
+3. **Create feature branch**: `git checkout -b fix/issue-N-description`
+4. **Follow CONTRIBUTING.md**: Complete workflow documentation
+
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for complete development workflow, issue templates, and code quality requirements.
+
 ## Key Files
 
+- `CONTRIBUTING.md`: **Development workflow and contribution guidelines**
+- `ARCHITECTURE_ANALYSIS.md`: Technical debt analysis and refactoring plan
 - `pyproject.toml`: Python dependencies and tool configuration
 - `alembic.ini`: Database migration configuration  
 - `docker-compose.yml`: Local development services

@@ -1,0 +1,201 @@
+{
+  "project": "Kairos BCP - MVP Rewrite with Context7",
+  "description": "Complete rewrite of the PKM system using modern stack (FastAPI + Next.js) with Context7 MCP for up-to-date library documentation",
+  "phases": [
+    {
+      "phase_id": "Phase_0_Setup_Context7",
+      "description": "Configurar Context7 MCP para documentación actualizada durante el desarrollo.",
+      "tasks": [
+        {
+          "task_id": "0.1_install_context7",
+          "description": "Instalar y configurar Context7 MCP para acceso a documentación actualizada de librerías durante la implementación.",
+          "agent_profile": "agent:system-config",
+          "dependencies": [],
+          "context7_libraries": ["@upstash/context7-mcp"],
+          "artifacts_output": ["claude_desktop_config.json"],
+          "validation_criteria": "Context7 MCP responde correctamente a 'use context7' en prompts.",
+          "human_checkpoint": true
+        }
+      ]
+    },
+    {
+      "phase_id": "Phase_1_Backend_Foundation",
+      "description": "Construir la base de la API FastAPI con modelos SQLAlchemy adaptados y documentación actualizada.",
+      "tasks": [
+        {
+          "task_id": "1.1_backend_setup",
+          "description": "Crear estructura de directorios del backend y configuración inicial de FastAPI con settings y environment. use context7",
+          "agent_profile": "agent:python-fastapi",
+          "dependencies": ["0.1_install_context7"],
+          "context7_libraries": ["fastapi", "uvicorn", "python-dotenv", "pydantic-settings"],
+          "artifacts_output": ["backend/app/main.py", "backend/app/core/config.py", "backend/requirements.txt", "backend/.env.example"],
+          "validation_criteria": "FastAPI app inicia sin errores en localhost:8000 con documentación automática en /docs.",
+          "human_checkpoint": false
+        },
+        {
+          "task_id": "1.2_database_setup",
+          "description": "Configurar SQLAlchemy async, adaptar modelos existentes y configurar Alembic para migraciones. use context7",
+          "agent_profile": "agent:python-sqlalchemy", 
+          "dependencies": ["1.1_backend_setup"],
+          "context7_libraries": ["sqlalchemy", "asyncpg", "alembic", "psycopg2-binary"],
+          "artifacts_output": ["backend/app/models/", "backend/app/core/database.py", "backend/alembic.ini", "backend/migrations/"],
+          "validation_criteria": "Conexión a BD exitosa, modelos cargan correctamente y migraciones funcionan.",
+          "human_checkpoint": false
+        },
+        {
+          "task_id": "1.3_pydantic_schemas",
+          "description": "Crear schemas Pydantic para todas las entidades con validación completa y documentación. use context7",
+          "agent_profile": "agent:python-fastapi",
+          "dependencies": ["1.2_database_setup"],
+          "context7_libraries": ["pydantic", "pydantic-settings"],
+          "artifacts_output": ["backend/app/schemas/user.py", "backend/app/schemas/project.py", "backend/app/schemas/note.py", "backend/app/schemas/keyword.py", "backend/app/schemas/source.py"],
+          "validation_criteria": "Todos los schemas validan correctamente con datos de ejemplo y generan documentación OpenAPI.",
+          "human_checkpoint": true
+        }
+      ]
+    },
+    {
+      "phase_id": "Phase_2_Backend_Implementation",
+      "description": "Implementar autenticación JWT, endpoints CRUD y tests de integración.",
+      "tasks": [
+        {
+          "task_id": "2.1_jwt_auth",
+          "description": "Implementar sistema completo de autenticación JWT con refresh tokens, password hashing y dependencies. use context7",
+          "agent_profile": "agent:python-security",
+          "dependencies": ["1.3_pydantic_schemas"],
+          "context7_libraries": ["python-jose", "passlib", "bcrypt", "python-multipart"],
+          "artifacts_output": ["backend/app/core/security.py", "backend/app/api/deps.py", "backend/app/api/v1/auth.py"],
+          "validation_criteria": "Login endpoint devuelve JWT válido, refresh funciona y rutas protegidas requieren autenticación.",
+          "human_checkpoint": false
+        },
+        {
+          "task_id": "2.2_crud_endpoints",
+          "description": "Implementar todos los endpoints CRUD para User, Project, Note, Keyword y Source con paginación. use context7",
+          "agent_profile": "agent:python-fastapi",
+          "dependencies": ["2.1_jwt_auth"],
+          "context7_libraries": ["fastapi", "sqlalchemy"],
+          "artifacts_output": ["backend/app/api/v1/users.py", "backend/app/api/v1/projects.py", "backend/app/api/v1/notes.py", "backend/app/api/v1/keywords.py", "backend/app/api/v1/sources.py"],
+          "validation_criteria": "Todos los endpoints CRUD responden correctamente, respetan autenticación y manejan errores apropiadamente.",
+          "human_checkpoint": false
+        },
+        {
+          "task_id": "2.3_api_testing",
+          "description": "Crear suite completa de tests de integración para todos los endpoints con fixtures y test database. use context7",
+          "agent_profile": "agent:python-testing",
+          "dependencies": ["2.2_crud_endpoints"],
+          "context7_libraries": ["pytest", "pytest-asyncio", "httpx"],
+          "artifacts_output": ["backend/tests/test_auth.py", "backend/tests/test_projects.py", "backend/tests/test_notes.py", "backend/tests/conftest.py"],
+          "validation_criteria": "Cobertura de tests >80%, todos los tests pasan y incluyen casos edge.",
+          "human_checkpoint": true
+        }
+      ]
+    },
+    {
+      "phase_id": "Phase_3_Frontend_Implementation", 
+      "description": "Construir interfaz Next.js con TypeScript, autenticación y funcionalidad PKM completa.",
+      "tasks": [
+        {
+          "task_id": "3.1_frontend_setup",
+          "description": "Configurar Next.js 15 con App Router, TypeScript, Tailwind CSS y estructura de proyecto. use context7",
+          "agent_profile": "agent:react-typescript",
+          "dependencies": ["2.3_api_testing"],
+          "context7_libraries": ["next", "typescript", "tailwindcss", "@types/react", "@types/node", "autoprefixer", "postcss"],
+          "artifacts_output": ["frontend/package.json", "frontend/tsconfig.json", "frontend/tailwind.config.js", "frontend/src/app/layout.tsx", "frontend/next.config.js"],
+          "validation_criteria": "Aplicación Next.js inicia correctamente en localhost:3000 con TypeScript y Tailwind funcionando.",
+          "human_checkpoint": false
+        },
+        {
+          "task_id": "3.2_auth_system",
+          "description": "Crear sistema de autenticación frontend con páginas login/register, state management y API integration. use context7",
+          "agent_profile": "agent:react-typescript",
+          "dependencies": ["3.1_frontend_setup"],
+          "context7_libraries": ["axios", "zustand", "react-hook-form", "zod", "@hookform/resolvers"],
+          "artifacts_output": ["frontend/src/app/(auth)/login/page.tsx", "frontend/src/app/(auth)/register/page.tsx", "frontend/src/stores/auth.ts", "frontend/src/lib/api.ts", "frontend/src/lib/auth.ts"],
+          "validation_criteria": "Usuario puede registrarse, hacer login, mantener sesión y logout correctamente.",
+          "human_checkpoint": false
+        },
+        {
+          "task_id": "3.3_dashboard_pkm",
+          "description": "Implementar dashboard principal con gestión completa de proyectos, notas, keywords y búsqueda. use context7",
+          "agent_profile": "agent:react-typescript",
+          "dependencies": ["3.2_auth_system"],
+          "context7_libraries": ["@radix-ui/react-dialog", "@radix-ui/react-select", "@radix-ui/react-label", "lucide-react", "clsx", "tailwind-merge"],
+          "artifacts_output": ["frontend/src/app/dashboard/page.tsx", "frontend/src/components/features/ProjectTree.tsx", "frontend/src/components/features/NoteEditor.tsx", "frontend/src/components/forms/ProjectForm.tsx", "frontend/src/components/forms/NoteForm.tsx"],
+          "validation_criteria": "Dashboard permite CRUD completo de proyectos y notas, navegación jerárquica y búsqueda funcional.",
+          "human_checkpoint": true
+        },
+        {
+          "task_id": "3.4_responsive_ui",
+          "description": "Implementar diseño responsive, componentes UI reutilizables y UX optimizada para PKM. use context7",
+          "agent_profile": "agent:react-typescript",
+          "dependencies": ["3.3_dashboard_pkm"],
+          "context7_libraries": ["@radix-ui/react-toast", "@radix-ui/react-dropdown-menu", "react-resizable-panels"],
+          "artifacts_output": ["frontend/src/components/ui/", "frontend/src/components/layout/", "frontend/src/styles/globals.css"],
+          "validation_criteria": "UI es completamente responsive, accesible y optimizada para flujos de trabajo PKM.",
+          "human_checkpoint": false
+        }
+      ]
+    },
+    {
+      "phase_id": "Phase_4_Integration_Deployment",
+      "description": "Integrar sistema completo, testing E2E y preparar configuración de deployment.",
+      "tasks": [
+        {
+          "task_id": "4.1_integration_testing",
+          "description": "Probar integración completa frontend-backend, resolver issues y optimizar performance. use context7",
+          "agent_profile": "agent:fullstack-testing",
+          "dependencies": ["3.4_responsive_ui"],
+          "context7_libraries": ["@testing-library/react", "jest", "@testing-library/jest-dom"],
+          "artifacts_output": ["frontend/__tests__/", "integration-test-results.md", "performance-optimization.md"],
+          "validation_criteria": "Flujo completo de usuario funciona sin errores, performance optimizada y sin memory leaks.",
+          "human_checkpoint": false
+        },
+        {
+          "task_id": "4.2_dockerization",
+          "description": "Crear configuración Docker completa para desarrollo y producción con multi-stage builds. use context7",
+          "agent_profile": "agent:devops-docker",
+          "dependencies": ["4.1_integration_testing"],
+          "context7_libraries": ["docker", "docker-compose"],
+          "artifacts_output": ["Dockerfile.backend", "Dockerfile.frontend", "docker-compose.yml", "docker-compose.prod.yml", ".dockerignore"],
+          "validation_criteria": "docker-compose up levanta toda la aplicación correctamente y docker-compose.prod.yml está optimizado para producción.",
+          "human_checkpoint": true
+        },
+        {
+          "task_id": "4.3_documentation",
+          "description": "Crear documentación completa de API, deployment guide y user manual.",
+          "agent_profile": "agent:technical-writer",
+          "dependencies": ["4.2_dockerization"],
+          "context7_libraries": [],
+          "artifacts_output": ["API_DOCUMENTATION.md", "DEPLOYMENT_GUIDE.md", "USER_MANUAL.md", "DEVELOPMENT_SETUP.md"],
+          "validation_criteria": "Documentación completa permite a nuevos desarrolladores setup del proyecto y deployment en producción.",
+          "human_checkpoint": true
+        }
+      ]
+    }
+  ],
+  "success_criteria": {
+    "functional": [
+      "Sistema de autenticación JWT completo",
+      "CRUD completo para todas las entidades PKM",
+      "Interfaz responsive y optimizada para PKM workflows",
+      "Búsqueda y navegación jerárquica de proyectos/notas",
+      "Integración completa frontend-backend sin errores"
+    ],
+    "technical": [
+      "Cobertura de tests >80%",
+      "Performance: API <500ms, Frontend <2s initial load",
+      "Containerización completa con Docker",
+      "Documentación técnica completa",
+      "Código mantenible siguiendo best practices"
+    ],
+    "architectural": [
+      "Clean separation: Frontend (Next.js) + Backend (FastAPI) + DB (PostgreSQL)",
+      "Async operations throughout the backend",
+      "Type safety con TypeScript en frontend",
+      "Proper error handling y validation en todas las capas",
+      "Scalable foundation para futuras features"
+    ]
+  },
+  "estimated_timeline": "2-3 weeks",
+  "context7_integration": "Each task includes 'use context7' directive with specific libraries to ensure up-to-date documentation during implementation"
+}

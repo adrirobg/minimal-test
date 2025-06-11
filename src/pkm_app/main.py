@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from pkm_app.infrastructure.config.settings import get_settings
-from pkm_app.logging_config import configure_logging
+from pkm_app.logging_config import setup_logging
 
 
 def setup_application() -> None:
@@ -21,17 +21,17 @@ def setup_application() -> None:
     the application environment.
     """
     # Configure logging first
-    configure_logging()
+    setup_logging()
     logger = logging.getLogger(__name__)
     
     try:
         # Load and validate settings
         settings = get_settings()
         logger.info("Application configuration loaded successfully")
-        logger.info(f"Database URL configured: {settings.DATABASE_URL[:20]}...")
+        logger.info(f"Database URL configured: {settings.ASYNC_DATABASE_URL[:20]}...")
         
         # Validate critical paths and dependencies
-        if not settings.DATABASE_URL:
+        if not settings.ASYNC_DATABASE_URL:
             raise ValueError("DATABASE_URL is required but not configured")
             
         logger.info("Application setup completed successfully")
@@ -79,13 +79,15 @@ def main() -> None:
     Sets up the application and launches the default interface.
     """
     setup_application()
+    logger = logging.getLogger(__name__)
+    logger.info("Application started successfully!")
     
-    # For now, default to Streamlit UI
+    # For now, just test basic functionality
     # In the future, this could support different interfaces:
     # - FastAPI server
     # - CLI interface
-    # - etc.
-    run_streamlit_ui()
+    # - Streamlit UI
+    # run_streamlit_ui()
 
 
 if __name__ == "__main__":

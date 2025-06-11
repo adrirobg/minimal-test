@@ -6,7 +6,7 @@ authors = [
     {name = "adrirobg",email = "adrirobles1991@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13,<4.0" # Asegúrate de que tu código es compatible con Python 3.13
+requires-python = ">=3.12,<4.0" # Compatible with Python 3.12+
 dependencies = [
     "pydantic[email] (>=2.11.5,<3.0.0)",
     "pydantic-settings (>=2.9.1,<3.0.0)",
@@ -21,7 +21,8 @@ dependencies = [
     "fastapi (>=0.115.12,<0.116.0)",
     "uvicorn (>=0.34.2,<0.35.0)",
     "agno==1.5.1",
-    "aiocache (>=0.12.3,<0.13.0)"
+    "aiocache (>=0.12.3,<0.13.0)",
+    "streamlit (>=1.45.1,<2.0.0)"
 ] # Aquí irán las dependencias de tu aplicación, ej: fastapi, sqlalchemy, pydantic, etc.
 
 

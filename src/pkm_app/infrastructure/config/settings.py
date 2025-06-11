@@ -58,6 +58,9 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+def get_settings() -> Settings:
+    return settings
+
 # Para depuración, puedes imprimir las URLs generadas:
 # print(f"ASYNC_DATABASE_URL: {settings.ASYNC_DATABASE_URL}")
 # print(f"SYNC_DATABASE_URL: {settings.SYNC_DATABASE_URL}")
