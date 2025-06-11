@@ -70,7 +70,7 @@ class SQLAlchemyUnitOfWork(IUnitOfWork):
 
         self.notes = SQLAlchemyNoteRepository(self._session)
         self.keywords = SQLAlchemyKeywordRepository(self._session)
-        self.projects = SQLAlchemyProjectRepository(self._session, self._cache)
+        self.projects = SQLAlchemyProjectRepository(self._session)
         self.sources = SQLAlchemySourceRepository(self._session)
         self.note_links = SQLAlchemyNoteLinkRepository(self._session)
 
