@@ -3,7 +3,6 @@ from collections.abc import Sequence
 from typing import Optional
 from uuid import UUID
 
-from aiocache import Cache  # Añadido para caché
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,31 +20,17 @@ logger = logging.getLogger(__name__)
 
 
 class SQLAlchemyProjectRepository(IProjectRepository):
-    def __init__(self, session: AsyncSession, cache: Cache):  # Cache inyectada
+    def __init__(self, session: AsyncSession):
         self.session = session
-        self.cache = cache
 
     async def _get_project_instance(
         self, project_id: UUID, user_id: str, include_children: bool = False
     ) -> ProjectModel | None:
-        """Método helper para obtener una instancia de ProjectModel."""
+        """Método helper para obtener una instancia de ProjectModel sin caché inseguro."""
         logger.debug(
             f"Consultando instancia de proyecto {project_id} para usuario {user_id}, incluir hijos: {include_children}."
         )
-        cache_key = f"project_instance:{user_id}:{project_id}:{include_children}"
-
-        cached_project = await self.cache.get(cache_key)
-        if cached_project:
-            logger.debug(
-                f"Instancia de proyecto {project_id} (hijos: {include_children}) encontrada en caché para usuario {user_id}."
-            )
-            if isinstance(cached_project, ProjectModel):
-                return cached_project
-            return None
-
-        logger.debug(
-            f"Instancia de proyecto {project_id} (hijos: {include_children}) no encontrada en caché, consultando BD para usuario {user_id}."
-        )
+        
         stmt = select(ProjectModel).where(
             ProjectModel.id == project_id, ProjectModel.user_id == user_id
         )
@@ -55,15 +40,6 @@ class SQLAlchemyProjectRepository(IProjectRepository):
 
         result = await self.session.execute(stmt)
         project_instance = result.scalar_one_or_none()
-
-        if project_instance:
-            # Usar pickle serializer implícitamente o especificar uno si es necesario.
-            # ProjectModel como objeto SQLAlchemy podría necesitar ser detached o convertido a un DTO simple para caché si hay problemas de sesión.
-            # Por ahora, se asume que el objeto ProjectModel puede ser cacheado directamente por aiocache (usando pickle).
-            await self.cache.set(cache_key, project_instance, ttl=600)  # Cache por 10 minutos
-            logger.debug(
-                f"Instancia de proyecto {project_id} (hijos: {include_children}) guardada en caché para usuario {user_id}."
-            )
 
         return project_instance
 
