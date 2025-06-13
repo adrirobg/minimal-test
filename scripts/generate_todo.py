@@ -1,0 +1,246 @@
+#!/usr/bin/env python3
+"""
+Generador de TODO.md desde mission_map.json
+Parte del sistema de logging híbrido para Kairos BCP
+"""
+
+import json
+import os
+from datetime import datetime
+from pathlib import Path
+
+def create_logs_directory():
+    """Crear directorio de logs si no existe"""
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
+    return logs_dir
+
+def load_mission_map():
+    """Cargar mission_map.json"""
+    try:
+        with open('mission_map.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("❌ Error: mission_map.json no encontrado")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"❌ Error parseando JSON: {e}")
+        return None
+
+def get_status_icon(task_id):
+    """Determinar ícono de status basado en task_id"""
+    # Lógica simple: si el task es 0.1, está done; resto pending
+    if task_id == "0.1_install_context7":
+        return "✅"
+    else:
+        return "⏳"
+
+def generate_todo_content(mission_data):
+    """Generar contenido completo del TODO.md"""
+    
+    # Header
+    content = f"""# Kairos BCP - Development TODO
+
+**Generated from**: `mission_map.json`  
+**Last Updated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
+**Methodology**: Roo Code + Context7 + Mission Map  
+
+## Legend
+- ⏳ Pending
+- 🚧 In Progress  
+- ✅ Completed
+- ❌ Failed/Blocked
+
+## Progress Overview
+
+"""
+    
+    # Progress overview
+    total_tasks = 0
+    completed_tasks = 0
+    
+    for phase in mission_data['phases']:
+        phase_tasks = len(phase['tasks'])
+        total_tasks += phase_tasks
+        
+        phase_completed = sum(1 for task in phase['tasks'] if get_status_icon(task['task_id']) == "✅")
+        completed_tasks += phase_completed
+        
+        progress_percent = int((phase_completed / phase_tasks) * 100) if phase_tasks > 0 else 0
+        progress_bar = "█" * (progress_percent // 10) + "░" * (10 - progress_percent // 10)
+        
+        content += f"**{phase['phase_id']}**: {progress_bar} {progress_percent}% ({phase_completed}/{phase_tasks})\\n"
+    
+    overall_progress = int((completed_tasks / total_tasks) * 100) if total_tasks > 0 else 0
+    overall_bar = "█" * (overall_progress // 10) + "░" * (10 - overall_progress // 10)
+    content += f"\\n**OVERALL**: {overall_bar} {overall_progress}% ({completed_tasks}/{total_tasks})\\n\\n"
+    
+    # Detailed phases and tasks
+    for phase in mission_data['phases']:
+        content += f"## {phase['phase_id']}: {phase['description']}\\n\\n"
+        
+        for task in phase['tasks']:
+            status = get_status_icon(task['task_id'])
+            content += f"### [{status}] {task['task_id']}\\n"
+            content += f"**Description**: {task['description']}\\n\\n"
+            
+            # Dependencies
+            if task['dependencies']:
+                content += f"**Dependencies**: {', '.join(task['dependencies'])}\\n"
+            else:
+                content += f"**Dependencies**: None\\n"
+            
+            # Context7 libraries
+            if task.get('context7_libraries'):
+                libs = ', '.join(f"`{lib}`" for lib in task['context7_libraries'])
+                content += f"**Context7 Libraries**: {libs}\\n"
+            
+            # Artifacts
+            if task.get('artifacts_output'):
+                artifacts = ', '.join(f"`{artifact}`" for artifact in task['artifacts_output'])
+                content += f"**Expected Artifacts**: {artifacts}\\n"
+            
+            # Validation criteria
+            content += f"**Validation**: {task['validation_criteria']}\\n"
+            
+            # Human checkpoint
+            if task.get('human_checkpoint', False):
+                content += f"**Human Checkpoint**: ⚠️ Required\\n"
+            
+            # Logging section for Claude Code
+            content += f"\\n**Logging Notes** (for Claude Code):\\n"
+            content += f"- [ ] Context7 documentation fetched\\n"
+            content += f"- [ ] Artifacts created and validated\\n"
+            content += f"- [ ] Validation criteria met\\n"
+            content += f"- [ ] Progress logged to `logs/progress_log.md`\\n\\n"
+            
+            content += "---\\n\\n"
+    
+    # Footer with instructions
+    content += f"""## Instructions for Claude Code
+
+### Before starting any task:
+1. Read this TODO.md to understand current status
+2. Check `logs/progress_log.md` for previous context
+3. Verify Context7 is working: include "use context7" in prompts
+
+### During task execution:
+1. Log progress in `logs/progress_log.md`
+2. Update this file's status markers (⏳ → 🚧 → ✅)
+3. Use Context7 for up-to-date documentation of specified libraries
+4. Create artifacts as specified in each task
+
+### After task completion:
+1. Validate against criteria listed
+2. Update progress overview percentages
+3. Log any issues or learnings in progress_log.md
+
+### Emergency Reset:
+If experiment fails, use: `git checkout experiment-base` to restart
+
+---
+*Generated by: `scripts/generate_todo.py`*
+*Mission Map: `mission_map.json`*
+"""
+    
+    return content
+
+def generate_initial_progress_log():
+    """Generar progress_log.md inicial"""
+    content = f"""# Development Progress Log
+
+**Project**: Kairos BCP - PKM System Rewrite  
+**Started**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
+**Methodology**: Roo Code + Context7 + Mission Map  
+
+## Session Log
+
+### {datetime.now().strftime('%Y-%m-%d %H:%M')} - Project Initialization
+- ✅ Mission map created (`mission_map.json`)
+- ✅ Logging system implemented
+- ✅ TODO.md generated from mission map
+- ⏳ Ready for Phase 1.1 (backend_setup)
+
+**Context7 Status**: Installed, ready to use with "use context7" directive
+
+**Next Steps**: 
+1. Create experimental branch
+2. Begin Phase 1.1 backend setup
+3. Test Context7 integration with FastAPI documentation
+
+---
+
+## Claude Code Instructions
+
+When logging progress, use this format:
+
+```
+### YYYY-MM-DD HH:MM - Task: [task_id]
+**Status**: [Started/In Progress/Completed/Blocked]
+**Context7 Used**: [Libraries fetched]
+**Artifacts Created**: [List files]
+**Issues Encountered**: [Any problems]
+**Validation Status**: [Pass/Fail/Pending]
+```
+
+Remember to:
+- Log before starting each task
+- Update TODO.md status markers
+- Record Context7 usage and effectiveness
+- Note any deviations from mission map
+
+---
+"""
+    return content
+
+def main():
+    """Función principal"""
+    print("🚀 Iniciando setup del sistema de logging híbrido...")
+    
+    # Crear directorio de logs
+    logs_dir = create_logs_directory()
+    print(f"📁 Directorio de logs creado: {logs_dir}")
+    
+    # Cargar mission map
+    mission_data = load_mission_map()
+    if not mission_data:
+        return
+    
+    # Generar TODO.md
+    todo_content = generate_todo_content(mission_data)
+    todo_path = logs_dir / "todo.md"
+    
+    with open(todo_path, 'w', encoding='utf-8') as f:
+        f.write(todo_content)
+    print(f"📝 TODO.md generado: {todo_path}")
+    
+    # Generar progress_log.md inicial
+    progress_content = generate_initial_progress_log()
+    progress_path = logs_dir / "progress_log.md"
+    
+    with open(progress_path, 'w', encoding='utf-8') as f:
+        f.write(progress_content)
+    print(f"📊 Progress log creado: {progress_path}")
+    
+    # Crear archivos adicionales de tracking
+    context7_path = logs_dir / "context7_usage.md"
+    with open(context7_path, 'w', encoding='utf-8') as f:
+        f.write(f"# Context7 Usage Tracking\\n\\n**Created**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\\n\\n")
+    print(f"🔍 Context7 tracker creado: {context7_path}")
+    
+    artifacts_path = logs_dir / "artifacts_created.md"
+    with open(artifacts_path, 'w', encoding='utf-8') as f:
+        f.write(f"# Artifacts Created Log\\n\\n**Created**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\\n\\n")
+    print(f"📦 Artifacts tracker creado: {artifacts_path}")
+    
+    print("\\n✅ Sistema de logging híbrido configurado correctamente!")
+    print("\\n📋 Archivos creados:")
+    print(f"   - {todo_path}")
+    print(f"   - {progress_path}")
+    print(f"   - {context7_path}")
+    print(f"   - {artifacts_path}")
+    
+    print("\\n🎯 Siguiente paso: Ejecutar este script en la raíz del proyecto")
+
+if __name__ == "__main__":
+    main()
