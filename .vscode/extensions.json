@@ -1,0 +1,35 @@
+{
+  "recommendations": [
+    "ms-vscode-remote.remote-wsl",
+    "ms-python.python",
+    "ms-python.black-formatter",
+    "ms-python.mypy-type-checker",
+    "ms-python.pylint",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-typescript-next",
+    "ms-azuretools.vscode-docker",
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "ms-vscode-remote.remote-containers",
+    "GitHub.github-vscode-theme",
+    "vscode-icons-team.vscode-icons",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.sublime-keybindings",
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode.powershell",
+    "bierner.markdown-mermaid",
+    "yzhang.markdown-all-in-one",
+    "ms-vscode.hexeditor",
+    "humao.rest-client",
+    "ms-postgresql.postgresql",
+    "ckolkman.vscode-postgres"
+  ],
+  "unwantedRecommendations": [
+    "ms-python.pylance",
+    "ms-python.flake8",
+    "ms-vscode.vscode-typescript-tslint-plugin"
+  ]
+}

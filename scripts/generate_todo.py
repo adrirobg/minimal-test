@@ -69,52 +69,52 @@ def generate_todo_content(mission_data):
         progress_percent = int((phase_completed / phase_tasks) * 100) if phase_tasks > 0 else 0
         progress_bar = "█" * (progress_percent // 10) + "░" * (10 - progress_percent // 10)
         
-        content += f"**{phase['phase_id']}**: {progress_bar} {progress_percent}% ({phase_completed}/{phase_tasks})\\n"
+        content += f"**{phase['phase_id']}**: {progress_bar} {progress_percent}% ({phase_completed}/{phase_tasks})\n"
     
     overall_progress = int((completed_tasks / total_tasks) * 100) if total_tasks > 0 else 0
     overall_bar = "█" * (overall_progress // 10) + "░" * (10 - overall_progress // 10)
-    content += f"\\n**OVERALL**: {overall_bar} {overall_progress}% ({completed_tasks}/{total_tasks})\\n\\n"
+    content += f"\n**OVERALL**: {overall_bar} {overall_progress}% ({completed_tasks}/{total_tasks})\n\n"
     
     # Detailed phases and tasks
     for phase in mission_data['phases']:
-        content += f"## {phase['phase_id']}: {phase['description']}\\n\\n"
+        content += f"## {phase['phase_id']}: {phase['description']}\n\n"
         
         for task in phase['tasks']:
             status = get_status_icon(task['task_id'])
-            content += f"### [{status}] {task['task_id']}\\n"
-            content += f"**Description**: {task['description']}\\n\\n"
+            content += f"### [{status}] {task['task_id']}\n"
+            content += f"**Description**: {task['description']}\n\n"
             
             # Dependencies
             if task['dependencies']:
-                content += f"**Dependencies**: {', '.join(task['dependencies'])}\\n"
+                content += f"**Dependencies**: {', '.join(task['dependencies'])}\n"
             else:
-                content += f"**Dependencies**: None\\n"
+                content += f"**Dependencies**: None\n"
             
             # Context7 libraries
             if task.get('context7_libraries'):
                 libs = ', '.join(f"`{lib}`" for lib in task['context7_libraries'])
-                content += f"**Context7 Libraries**: {libs}\\n"
+                content += f"**Context7 Libraries**: {libs}\n"
             
             # Artifacts
             if task.get('artifacts_output'):
                 artifacts = ', '.join(f"`{artifact}`" for artifact in task['artifacts_output'])
-                content += f"**Expected Artifacts**: {artifacts}\\n"
+                content += f"**Expected Artifacts**: {artifacts}\n"
             
             # Validation criteria
-            content += f"**Validation**: {task['validation_criteria']}\\n"
+            content += f"**Validation**: {task['validation_criteria']}\n"
             
             # Human checkpoint
             if task.get('human_checkpoint', False):
-                content += f"**Human Checkpoint**: ⚠️ Required\\n"
+                content += f"**Human Checkpoint**: ⚠️ Required\n"
             
             # Logging section for Claude Code
-            content += f"\\n**Logging Notes** (for Claude Code):\\n"
-            content += f"- [ ] Context7 documentation fetched\\n"
-            content += f"- [ ] Artifacts created and validated\\n"
-            content += f"- [ ] Validation criteria met\\n"
-            content += f"- [ ] Progress logged to `logs/progress_log.md`\\n\\n"
+            content += f"\n**Logging Notes** (for Claude Code):\n"
+            content += f"- [ ] Context7 documentation fetched\n"
+            content += f"- [ ] Artifacts created and validated\n"
+            content += f"- [ ] Validation criteria met\n"
+            content += f"- [ ] Progress logged to `logs/progress_log.md`\n\n"
             
-            content += "---\\n\\n"
+            content += "---\n\n"
     
     # Footer with instructions
     content += f"""## Instructions for Claude Code

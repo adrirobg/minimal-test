@@ -1,0 +1,36 @@
+# Simple Development Dockerfile for Python Backend
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install poetry==1.8.3
+
+# Configure Poetry for development
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VENV_IN_PROJECT=0
+
+# Copy Poetry files
+COPY pyproject.toml poetry.lock* ./
+
+# Install dependencies
+RUN poetry config virtualenvs.create false
+RUN poetry install
+
+# Copy application code
+COPY . .
+
+# Create directories
+RUN mkdir -p logs uploads
+
+# Expose port
+EXPOSE 8000
+
+# Development command with hot-reload
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

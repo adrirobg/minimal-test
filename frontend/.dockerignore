@@ -1,0 +1,14 @@
+# Simple Frontend Docker Ignore for Development
+node_modules/
+.next/
+out/
+build/
+dist/
+.env*
+.git/
+*.log
+.DS_Store
+*.swp
+*.swo
+coverage/
+*.tsbuildinfo

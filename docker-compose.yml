@@ -1,58 +1,81 @@
+# Simple Docker Compose for Personal Development
+# Focus: PostgreSQL + pgAdmin + Backend + Frontend with hot-reloading
 services:
-  # Servicio de la base de datos PostgreSQL con pgvector
-  db:
-    image: pgvector/pgvector:pg17 # Imagen con PostgreSQL 17 y pgvector. ¡Buena elección!
-    container_name: kairos-bcp-db # Nombre del contenedor. Claro y específico.
-    restart: unless-stopped # Política de reinicio adecuada para desarrollo.
+  # PostgreSQL Database with pgvector
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: kairos-postgres
     environment:
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432" # Mapeo estándar.
+      - "5432:5432"
     volumes:
-      - kairos_db_data:/var/lib/postgresql/data # Persistencia de datos con volumen nombrado. Perfecto.
-      # Si la carpeta 'init-scripts' va a estar en la raíz del proyecto (junto a docker-compose.yml),
-      # entonces la ruta sería '- ./init-scripts:/docker-entrypoint-initdb.d'
-      # o si va a estar dentro de 'src/', sería '- ./src/init-scripts:/docker-entrypoint-initdb.d'.
-      # La imagen pgvector/pgvector ya debería tener la extensión pgvector disponible,
-      # pero esto es útil para crear tablas o roles iniciales.
-    command:
-      - "postgres"
-      - "-c"
-      - "shared_buffers=256MB"
-    healthcheck: # Comprobación de salud para asegurar que la DB esté lista.
-      # El usuario 'postgres' suele ser el superusuario por defecto, y pg_isready con él
-      # verifica si el servidor está aceptando conexiones, lo cual es generalmente suficiente.
-      # Si ${DB_USER} es diferente de 'postgres', esta prueba no verifica que ESE usuario pueda conectar,
-      # pero sí que el servicio PostgreSQL está operativo.
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/init-scripts:/docker-entrypoint-initdb.d
+    restart: unless-stopped
 
-  # Servicio de pgAdmin para gestionar PostgreSQL
+  # pgAdmin for Database Management
   pgadmin:
     image: dpage/pgadmin4:latest
-    restart: unless-stopped # Política de reinicio adecuada para desarrollo.
-    container_name: kairos-bcp-pgadmin
+    container_name: kairos-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL} # Correcto.
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD} # Correcto.
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False'
     ports:
-      - "8080:80" # Mapeo de puerto estándar para pgAdmin.
-    depends_on:
-      db:
-        condition: service_healthy
-
-  qdrant:
-    image: qdrant/qdrant
-    ports:
-      - "6333:6333"
+      - "8080:80"
     volumes:
-      - qdrant_storage:/qdrant/storage
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+      - ./pgadmin/pgpass:/pgpass
+    depends_on:
+      - postgres
+    restart: unless-stopped
 
+  # Backend API (Development with hot-reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: kairos-backend
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      - SECRET_KEY=dev-secret-key-for-development
+      - CORS_ORIGINS=http://localhost:3000
+      - LOG_LEVEL=DEBUG
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # Frontend Application (Development with hot-reload)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: kairos-frontend
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_TELEMETRY_DISABLED=1
+      - WATCHPACK_POLLING=true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
-  kairos_db_data: # Volumen para persistir los datos de PostgreSQL (nombre actualizado). Correcto.
-  qdrant_storage: # Volumen para persistir los datos de Qdrant (nombre actualizado). Correcto.
+  postgres_data:
+  pgadmin_data:

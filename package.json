@@ -1,17 +1,26 @@
 {
-  "name": "full-sparc-test",
+  "name": "kairos-bcp",
   "version": "0.1.0",
-  "description": "A project created with SPARC methodology",
-  "main": "src/index.js",
+  "description": "Kairos BCP - Personal Knowledge Management System",
   "scripts": {
-    "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:setup": "./scripts/dev-setup.sh",
+    "dev:start": "docker-compose up -d",
+    "dev:stop": "docker-compose down",
+    "dev:restart": "docker-compose restart",
+    "dev:logs": "./scripts/dev-logs.sh",
+    "dev:logs:follow": "./scripts/dev-logs.sh all -f",
+    "db:reset": "./scripts/reset-db.sh",
+    "db:sample": "./scripts/load-sample-data.sh",
+    "dev:fresh": "docker-compose down -v && docker-compose up -d",
+    "dev:status": "docker-compose ps"
   },
   "keywords": [
-    "sparc"
+    "pkm",
+    "knowledge-management",
+    "personal-development",
+    "fastapi",
+    "nextjs"
   ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {}
+  "author": "Kairos BCP Team",
+  "license": "MIT"
 }
