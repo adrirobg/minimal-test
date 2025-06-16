@@ -46,6 +46,13 @@
       "command": "npx",
       "args": [
         "@playwright/mcp@latest"
+      ],
+      "alwaysAllow": [
+        "browser_close",
+        "browser_navigate",
+        "browser_type",
+        "browser_snapshot",
+        "browser_click"
       ]
     }
   }

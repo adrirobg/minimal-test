@@ -742,3 +742,328 @@ docker stats
 4. **Use interactive API docs**: http://localhost:8000/docs
 5. **Test components separately**: API, database, frontend
 6. **Reset environment if stuck**: `docker-compose down -v && docker-compose up -d`
+
+## Security Best Practices
+
+### JWT Authentication Implementation
+```python
+from datetime import datetime, timedelta, timezone
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+
+SECRET_KEY = "your-secret-key-here"  # Use environment variable
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/token")
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    user = await get_user_by_username(username)
+    if user is None:
+        raise credentials_exception
+    return user
+```
+
+### Input Validation and Sanitization
+```python
+from pydantic import BaseModel, Field, field_validator
+import html
+
+class SecureNoteCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    content: str = Field(..., min_length=1, max_length=10000)
+    
+    @field_validator('title', 'content')
+    @classmethod
+    def sanitize_html(cls, v: str) -> str:
+        return html.escape(v.strip())
+```
+
+## Performance Optimization
+
+### Database Query Optimization
+```python
+from sqlalchemy.orm import selectinload
+
+# Optimized relationship loading
+stmt = (
+    select(Note)
+    .options(
+        selectinload(Note.keywords),  # Collections: selectinload
+        joinedload(Note.project)      # Many-to-one: joinedload
+    )
+    .order_by(Note.created_at.desc())
+)
+
+# Cursor-based pagination for large datasets
+async def get_notes_paginated(db: AsyncSession, limit: int = 20, cursor: str = None):
+    stmt = select(Note).limit(limit + 1)
+    if cursor:
+        stmt = stmt.where(Note.id < cursor)
+    
+    result = await db.execute(stmt)
+    notes = result.scalars().all()
+    
+    has_more = len(notes) > limit
+    if has_more:
+        notes = notes[:-1]
+    
+    return {"notes": notes, "has_more": has_more}
+```
+
+### Caching Strategies
+```python
+import redis.asyncio as redis
+from functools import wraps
+
+redis_client = redis.from_url("redis://localhost:6379")
+
+def cache_result(expiry: int = 300):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            cache_key = f"{func.__name__}:{hash(str(args) + str(kwargs))}"
+            cached = await redis_client.get(cache_key)
+            if cached:
+                return pickle.loads(cached)
+            
+            result = await func(*args, **kwargs)
+            await redis_client.setex(cache_key, expiry, pickle.dumps(result))
+            return result
+        return wrapper
+    return decorator
+```
+
+## Testing Patterns
+
+### Test Configuration
+```python
+import pytest_asyncio
+from httpx import AsyncClient, ASGITransport
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+
+TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+@pytest_asyncio.fixture
+async def test_client():
+    engine = create_async_engine(TEST_DATABASE_URL)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    
+    async with AsyncClient(transport=ASGITransport(app=app)) as client:
+        yield client
+    
+    await engine.dispose()
+
+@pytest.mark.asyncio
+async def test_create_note(test_client: AsyncClient):
+    response = await test_client.post("/api/v1/notes/", json={
+        "title": "Test Note",
+        "content": "Test content"
+    })
+    assert response.status_code == 201
+    assert "id" in response.json()
+```
+
+## Development Standards
+
+### Code Organization
+- Separation of concerns: services, repositories, controllers
+- Dependency injection for database sessions
+- Type safety: TypeScript frontend, Python type hints
+- Comprehensive error handling
+
+### Security Requirements
+- Input validation and sanitization
+- JWT authentication with proper expiration
+- Password hashing with bcrypt
+- CORS configuration
+- SQL injection prevention via ORM
+
+### Performance Guidelines
+- Use selectinload for collections, joinedload for single relationships
+- Cursor-based pagination for large datasets
+- Redis caching for frequently accessed data
+- Background tasks for non-critical operations
+- Database query monitoring
+
+### Testing Strategy
+- Unit tests for business logic
+- Integration tests for API endpoints
+- Database isolation and cleanup
+- Mock external dependencies
+
+## Parallel Task Execution Guidelines
+
+### When to Use Parallel Tasks
+
+**Always Use Parallel Tasks For:**
+- **Technology Stack Research**: Investigating multiple libraries/frameworks simultaneously
+- **Multi-Component Analysis**: Analyzing different parts of the codebase independently
+- **Cross-Domain Information Gathering**: Backend + Frontend + Database + DevOps research
+- **Independent Problem Solving**: Multiple issues that don't depend on each other
+- **Comparative Analysis**: Evaluating different approaches or solutions
+
+**Sequential Tasks When:**
+- Tasks depend on results from previous tasks
+- Single, focused research topic
+- Simple operations that execute quickly
+- Information building requires context from previous steps
+
+### Parallel Task Structure Patterns
+
+#### Pattern 1: Technology Stack Investigation
+```
+Task 1: Backend technology research (FastAPI, SQLAlchemy)
+Task 2: Frontend technology research (Next.js, React patterns)  
+Task 3: Database optimization research (PostgreSQL, performance)
+Task 4: DevOps patterns research (Docker, deployment)
+WebSearch: Specific integration patterns
+```
+
+#### Pattern 2: Multi-Component Problem Analysis
+```
+Task 1: Analyze authentication flow issues
+Task 2: Investigate database performance problems
+Task 3: Review frontend state management  
+Task 4: Examine API endpoint design
+```
+
+#### Pattern 3: Comprehensive Feature Implementation
+```
+Task 1: Research backend implementation patterns
+Task 2: Research frontend component patterns
+Task 3: Research testing strategies
+Task 4: Research security considerations
+```
+
+### Task Design Principles
+
+**1. Independence First**
+- Each task must be able to execute without results from other tasks
+- Clearly separate concerns and domains
+- Avoid overlapping research areas
+
+**2. Specific and Focused Prompts**
+- Detailed task descriptions with clear objectives
+- Specify exact technologies, versions, and patterns needed
+- Include expected output format and depth
+
+**3. Balanced Scope**
+- Not too narrow (inefficient parallelization)
+- Not too broad (loses focus and depth)
+- Aim for 15-30 minutes of equivalent sequential work per task
+
+**4. Clear Integration Strategy**
+- Plan how results will be combined
+- Ensure outputs are in compatible formats
+- Consider interdependencies in final integration
+
+### Execution Decision Matrix
+
+| Scenario | Use Parallel Tasks | Reasoning |
+|----------|-------------------|-----------|
+| Research 3+ technologies | Yes | Independent domains, significant time savings |
+| Analyze codebase sections | Yes | Different components, independent analysis |
+| Debug multiple unrelated issues | Yes | Separate problem spaces |
+| Implement complex feature | Yes | Backend/Frontend/Testing can be researched in parallel |
+| Follow step-by-step tutorial | No | Sequential dependency |
+| Simple bug fix | No | Single focus area |
+| Quick information lookup | No | Overhead not justified |
+
+### Example Implementation
+
+**Instead of Sequential:**
+```
+1. Research FastAPI patterns (5 min)
+2. Research SQLAlchemy patterns (5 min)  
+3. Research Next.js patterns (5 min)
+4. Research Docker patterns (5 min)
+Total: 20 minutes
+```
+
+**Use Parallel Approach:**
+```python
+# Single message with multiple concurrent tasks
+Task 1: FastAPI async patterns and best practices
+Task 2: SQLAlchemy 2.0 relationship loading optimization  
+Task 3: Next.js 15 App Router with TypeScript patterns
+Task 4: Docker Compose development environment optimization
+Total: 6-8 minutes with deeper coverage
+```
+
+### Integration Best Practices
+
+**1. Synthesize Results**
+- Identify common patterns across task outputs
+- Resolve any conflicting recommendations
+- Create unified implementation approach
+
+**2. Cross-Reference Findings**
+- Look for integration points between different research areas
+- Identify potential conflicts or compatibility issues
+- Ensure consistency across technology stack
+
+**3. Prioritize Implementation**
+- Use research depth to inform implementation order
+- Consider dependencies revealed through parallel research
+- Plan staged rollout based on complexity and risk
+
+### Quality Assurance
+
+**Before Parallel Execution:**
+- Verify tasks are truly independent
+- Ensure each task has clear, specific objectives
+- Confirm combined scope justifies parallel approach
+
+**During Execution:**
+- Monitor for overlapping or duplicate research
+- Adjust scope if tasks complete too quickly or slowly
+
+**After Completion:**
+- Validate all areas were adequately covered
+- Check for gaps between task boundaries
+- Ensure integration produces coherent outcome
+
+### Performance Metrics
+
+**Efficiency Indicators:**
+- Time savings: Target 60-70% reduction in research time
+- Coverage depth: Each parallel task should match sequential depth
+- Integration quality: Results should synthesize into coherent guidelines
+- Implementation readiness: Outputs should be immediately actionable
+
+**When Parallel Tasks Succeed:**
+- All areas adequately researched without gaps
+- Clear integration path between different research areas  
+- Significant time savings without quality compromise
+- Actionable recommendations across full scope
+
+This methodology should be applied whenever Claude Code encounters complex, multi-faceted tasks that can benefit from parallel investigation and analysis.

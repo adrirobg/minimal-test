@@ -245,7 +245,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
   showNotes = true,
   className = ''
 }) => {
-  const { projects, loading, loadProjects } = useProjectsStore();
+  const { projects, isLoading, fetchProjects } = useProjectsStore();
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [notes, setNotes] = useState<Note[]>([]);
@@ -256,11 +256,11 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
   const [projectForNewNote, setProjectForNewNote] = useState<Project | null>(null);
 
   useEffect(() => {
-    loadProjects();
+    fetchProjects();
     if (showNotes) {
       loadNotes();
     }
-  }, [loadProjects, showNotes]);
+  }, [fetchProjects, showNotes]);
 
   const loadNotes = async () => {
     try {
@@ -286,7 +286,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
   const handleCreateProject = async (data: ProjectCreate) => {
     try {
       await apiClient.post('/v1/projects/', data);
-      await loadProjects();
+      await fetchProjects();
       setIsCreateProjectOpen(false);
       setParentForNewProject(null);
     } catch (error) {
@@ -299,7 +299,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
     
     try {
       await apiClient.put(`/v1/projects/${editingProject.id}`, data);
-      await loadProjects();
+      await fetchProjects();
       setEditingProject(null);
     } catch (error) {
       console.error('Failed to update project:', error);
@@ -310,7 +310,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
     if (window.confirm(`Are you sure you want to delete "${project.name}"? This action cannot be undone.`)) {
       try {
         await apiClient.delete(`/v1/projects/${project.id}`);
-        await loadProjects();
+        await fetchProjects();
       } catch (error) {
         console.error('Failed to delete project:', error);
       }
@@ -379,7 +379,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
   const projectTree = buildProjectTree(projects);
   const filteredProjects = filterProjects(projectTree, searchTerm);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className={className}>
         <CardContent className="p-6">
