@@ -70,7 +70,7 @@ export default function LoginPage() {
       localStorage.setItem('refresh_token', authData.refresh_token);
       
       // Get current user info
-      const userResponse = await apiClient.get('/v1/auth/me');
+      const userResponse = await apiClient.get('/api/v1/auth/me');
       setUser(userResponse);
 
       // Redirect to dashboard

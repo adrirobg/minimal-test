@@ -1,0 +1,85 @@
+{
+  "task_id": "KAIROS_IMPLEMENTATION_001",
+  "selected_plan": "scalability_approach_with_robustness_elements",
+  "phases": [
+    {
+      "name": "Fase 1: MVP del Agente",
+      "tasks": [
+        {
+          "name": "Configuración Agno + Gemini",
+          "description": "Implementar integración básica con API Gemini",
+          "dependencies": ["backend_setup"],
+          "resources": ["gemini_api_key"],
+          "agent_profile": "backend_developer",
+          "estimated_hours": 16
+        },
+        {
+          "name": "Endpoint /chat básico",
+          "description": "Crear endpoint inicial para interacción con el agente",
+          "dependencies": ["agno_setup"],
+          "resources": ["fastapi_docs"],
+          "agent_profile": "api_developer", 
+          "estimated_hours": 8
+        }
+      ]
+    },
+    {
+      "name": "Fase 2: Persistencia y Herramientas",
+      "tasks": [
+        {
+          "name": "Migración a PostgreSQL",
+          "description": "Configurar persistencia de sesiones en PostgreSQL",
+          "dependencies": ["database_schema"],
+          "resources": ["sqlalchemy_async"],
+          "agent_profile": "database_engineer",
+          "estimated_hours": 12
+        },
+        {
+          "name": "Herramienta RAG básica",
+          "description": "Implementar búsqueda semántica sobre notas",
+          "dependencies": ["postgres_setup"],
+          "resources": ["embeddings_model"],
+          "agent_profile": "ai_engineer",
+          "estimated_hours": 20
+        }
+      ]
+    },
+    {
+      "name": "Fase 3: Optimización y Escalabilidad",
+      "tasks": [
+        {
+          "name": "Arquitectura basada en eventos",
+          "description": "Implementar patrones de mensajería para escalabilidad",
+          "dependencies": ["mvp_complete"],
+          "resources": ["rabbitmq"],
+          "agent_profile": "senior_backend",
+          "estimated_hours": 24
+        },
+        {
+          "name": "Mecanismos de robustez",
+          "description": "Añadir circuit breakers y retry policies",
+          "dependencies": ["event_architecture"],
+          "resources": [],
+          "agent_profile": "devops_engineer",
+          "estimated_hours": 8
+        }
+      ]
+    }
+  ],
+  "dependencies": {
+    "backend_setup": "Configuración inicial del backend",
+    "agno_setup": "Agno Framework instalado",
+    "database_schema": "Esquema DB definido",
+    "postgres_setup": "PostgreSQL configurado",
+    "mvp_complete": "MVP funcionando",
+    "event_architecture": "Sistema de eventos implementado"
+  },
+  "agent_profiles": {
+    "backend_developer": "Python, FastAPI, AsyncIO",
+    "api_developer": "OpenAPI, REST", 
+    "database_engineer": "PostgreSQL, SQLAlchemy",
+    "ai_engineer": "LLMs, RAG, Embeddings",
+    "senior_backend": "Arquitectura distribuida",
+    "devops_engineer": "Resiliencia sistemas"
+  }
+}
